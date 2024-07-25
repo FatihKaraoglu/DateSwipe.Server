@@ -1,0 +1,175 @@
+﻿@page "/swipecard"
+@using DateSwipe.Client.Services.ProfileService
+@using DateSwipe.Client.Shared
+@using DateSwipe.Client.SignalR
+@using DateSwipe.Shared.RequestObject
+@using DateSwipe.Client.Services.DateDecisionService
+@implements IDisposable
+@inject ILogger<SwipeCard> Logger
+@inject IDateDecisionService DateDecisionService
+@inject SignalRService SignalRService
+@inject IProfileService ProfileService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<div class="card-stack-container text-center mt-4">
+    <div class="card-stack mx-auto">
+        @for (int i = 0; i < Cards.Count; i++)
+        {
+            var card = Cards[i];
+            var shadowClass = i > Cards.Count - 3 ? "shadow-card" : ""; // Add shadow class to the top two cards
+
+            <div @ref="card.ElementRef" class="stack-card @(shadowClass)">
+                <MudCard Elevation="0" class="card-container">
+                    <div style="position: relative; width: 100%; height: auto;">
+                        <MudCardMedia Image="@card.DateIdea.ImageUrl" class="card-image" />
+                    </div>
+                    <MudCardContent class="card-content">
+                        <div class="d-flex justify-content-center flex-row ">
+                            @foreach (var category in @card.DateIdea.Categories)
+                            {
+                                <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
+                            }
+                        </div>
+
+                        <MudText Typo="Typo.h6">@card.DateIdea.Title</MudText>
+                        <MudText>@card.DateIdea.Description</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="buttons-container text-center mt-4">
+    <MudIconButton Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Large" class="mud-icon-button" style="color: #00FF00;" />
+    <MudIconButton Icon="@Icons.Material.Outlined.Cancel" Size="Size.Large" class="mud-icon-button" style="color: #FF0000;" />
+</div>
+
+<MudDrawer @bind-Open="MatchAchieved" Anchor="@Anchor.Bottom" Elevation="4" Variant="@DrawerVariant.Temporary" Class="d-flex align-items-center flex-column gap-10" Height="100%">
+    <div class="d-flex flex-column align-items-center gap-3">
+        <MudText Typo="Typo.h3" Class="mt-3">
+            Its a Date!
+        </MudText>
+
+        <div class="d-flex flex-row justify-content-center gap-5">
+            <MudAvatar Class="avatar">
+                <MudImage Src="@ProfileService.User.ProfilePicture"></MudImage>
+            </MudAvatar>
+            <MudAvatar Class="avatar">
+                <MudImage Src="@ProfileService.Partner.ProfilePicture"></MudImage>
+            </MudAvatar>
+        </div>
+
+        <MudButton OnClick="NavigateToChat" Variant="Variant.Filled">Text your Partner!</MudButton>
+        <MudButton OnClick="() => {MatchAchieved = false;}">
+            Great!
+        </MudButton>
+    </div>
+</MudDrawer>
+
+@code {
+    [Parameter]
+    public List<SwipeCardModel> Cards { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSwiped { get; set; }
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+
+    public bool MatchAchieved { get; set; } = false;
+    public DateIdeaDTO DateIdea { get; set; }
+
+    private DotNetObjectReference<SwipeCard> _objRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _objRef = DotNetObjectReference.Create(this);
+        SignalRService.OnMatchReceived += HandleMatchReceived;
+        await SignalRService.StartAsync();
+
+        var response = await ProfileService.GetProfile();
+
+        if (!response.Success)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+
+        var partnerResponse = await ProfileService.GetPartnerProfile();
+
+        if (!partnerResponse.Success)
+        {
+            Snackbar.Add(partnerResponse.Message, Severity.Error);
+        }
+    }
+
+    private async Task HandleMatchReceived(string message, int dateId)
+    {
+        Logger.LogInformation($"Match message received: {message}");
+        var response = await DateDecisionService.GetDateIdeaByIdAsync(dateId);
+
+        if (!response.Success)
+        {
+            Snackbar.Add("Couldn't fetch the DateIdea", Severity.Error);
+            return;
+        }
+
+        DateIdea = response.Data;
+        MatchAchieved = true;
+        StateHasChanged();
+    }
+
+    private void NavigateToChat()
+    {
+        NavigationManager.NavigateTo("/chat");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            foreach (var card in Cards)
+            {
+                await JSRuntime.InvokeVoidAsync("initializeSwipe", card.ElementRef, _objRef);
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnSwipeDetected(string direction)
+    {
+        if (Cards.Any())
+        {
+            var swipedCard = Cards.Last();
+            Console.WriteLine($"Card {swipedCard.Id} swiped {direction}");
+            await OnSwiped.InvokeAsync(direction);
+
+            var swipeRequest = new SwipeRequest
+                {
+                    DateId = swipedCard.Id,
+                    Liked = direction == "right"
+                };
+            await DateDecisionService.SwipeAsync(swipeRequest);
+            // Set visibility to false instead of removing the card from DOM directly
+            swipedCard.IsVisible = false;
+            Cards.Remove(swipedCard);
+
+            for (int i = 0; i < Cards.Count; i++)
+            {
+                Cards[i].HasShadow = i < 2;
+            }
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _objRef?.Dispose();
+    }
+
+    private void HandleMouseDown(MouseEventArgs e, SwipeCardModel card)
+    {
+        // This function seems unused and can be removed if not needed.
+    }
+}

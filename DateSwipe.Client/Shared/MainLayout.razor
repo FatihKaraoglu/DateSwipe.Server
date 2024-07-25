@@ -1,0 +1,152 @@
+﻿@using DateSwipe.Client.Services.ProfileService
+@using Microsoft.AspNetCore.Authorization
+@inherits LayoutComponentBase
+@inject IProfileService ProfileService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode=_darkMode />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<LoadingOverlay />
+<MudLayout Class="d-flex">
+    <MudAppBar ToolBarClass="w-100 relative justify-content-between" Class="d-flex justify-content-between align-items-center " Elevation="0">
+        <MudToggleIconButton @bind-Toggled="_darkMode" Class="me-2" Icon="@Icons.Material.Filled.LightMode" ToggledIcon="@Icons.Material.Filled.DarkMode">
+        </MudToggleIconButton>
+        <MudText Class="absolute-center" Color="Color.Primary">
+            CoupleSwipe
+        </MudText>
+        <MudAvatar Class="me-2" @onclick='() => NavigationManager.NavigateTo("/profile")'> 
+            <MudImage Src="@_profilePicture" />
+        </MudAvatar>
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+    <MudAppBar Bottom="true" Class="d-flex flex-row justify-content-evenly gap-6">
+        <AppBarItem Icon="@Icons.Material.Outlined.Person" Href="/profile" ItemTitle="Profile"/>
+        <AppBarItem Icon="@Icons.Material.Outlined.Home" Href="/" ItemTitle="Home"/>
+        <AppBarItemButton Icon="@Icons.Material.Outlined.Settings" ItemTitle="Settings" OnClick="OpenDrawerSettings" />
+        <AppBarItem Icon="@Icons.Material.Outlined.Message" Href="/chat" ItemTitle="Chat" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="@_open" Anchor="@Anchor.Bottom" Elevation="1" Variant="@DrawerVariant.Temporary" Height="90%" >
+        <MudDrawerHeader Class="d-flex flex-row justify-content-between">
+            <MudText Typo="Typo.h6" >Settings</MudText>
+            <MudIconButton Class="transition icon-button" Icon="@Icons.Material.Rounded.Cancel" OnClick="CloseDrawerSettings" Color="Color.Primary">
+
+            </MudIconButton>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudNavLink Icon=@Icons.Material.Outlined.Person Class="border-bottom-settings" Href="/account">Account Information</MudNavLink>
+            <MudNavLink Icon=@Icons.Material.Outlined.Payment Class="border-bottom-settings" Href="/payment">Payment Methods</MudNavLink>
+            <MudNavLink Icon=@Icons.Material.Outlined.Favorite Class="border-bottom-settings" Href="/relationship">Relationship</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+
+   
+</MudLayout>
+
+
+<style>
+    .absolute-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+    }
+</style>
+@code {
+    private bool _open;
+    private bool _darkMode = false;
+    private string _profilePicture = string.Empty;
+    private bool _isFirstRender = true;
+    private bool isLoading = true;
+
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Background = "#F7F7F7ff",
+                AppbarBackground = "#F7F7F7ff",
+                AppbarText = "#303440ff",
+                DrawerBackground = "#F1F1F1",
+                TextPrimary = "#303440ff",
+                TextSecondary = "#CED3DEff",
+                Primary = "#dc143c"
+
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Background = "#1E1E1E",
+                AppbarBackground = "#1F1F20",
+                DrawerBackground = "#1F1F20",
+                TextPrimary = "#FFFFFF", // White color for the text and icons
+                TextSecondary = "#515151",
+                Surface = "#1D1E20",
+                Primary = "#dc143c"
+            },
+            Typography = new Typography()
+            {
+                Default = new Default()
+                {
+                    FontFamily = new[] { "Jost", "Helvetica", "Arial", "sans-serif" },
+                }
+            }
+        };
+
+
+
+
+    private void OpenDrawerSettings()
+    {
+        _open = true;
+    }
+
+    private void CloseDrawerSettings()
+    {
+        _open = false;
+    }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     Console.WriteLine("rendering MainLayout");
+    //     if (_isFirstRender)
+    //     {
+    //         var response = await ProfileService.GetProfile();
+    //         if (response.Success)
+    //         {
+    //             _profilePicture = response.Data.ProfilePicture;
+    //             StateHasChanged(); // Trigger re-render to update the profile picture
+    //         }
+    //         else
+    //         {
+    //             Snackbar.Add(response.Message, Severity.Error);
+    //         }
+    //         _isFirstRender = false;
+    //     }
+
+    //     isLoading = false;
+    // }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var response = await ProfileService.GetProfile();
+            if (response.Success)
+            {
+                _profilePicture = response.Data.ProfilePicture;
+                StateHasChanged(); // Trigger re-render to update the profile picture
+            }
+            else
+            {
+                Snackbar.Add(response.Message, Severity.Error);
+            }
+        }
+       
+    }
+}

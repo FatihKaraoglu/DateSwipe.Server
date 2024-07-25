@@ -1,0 +1,34 @@
+﻿@using DateSwipe.Client.Services.LoadingService
+@inject LoadingService LoadingService
+
+@if (isVisible)
+{
+    <div class="loading-overlay">
+        <div class="loading-background"></div>
+        <MudPaper Class="loading-spinner" Elevation="0" Style="background-color: transparent">
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        </MudPaper>
+    </div>
+}
+
+@code {
+    private bool isVisible;
+
+    protected override void OnInitialized()
+    {
+        LoadingService.OnShow += Show;
+        LoadingService.OnHide += Hide;
+    }
+
+    private void Show()
+    {
+        isVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Hide()
+    {
+        isVisible = false;
+        InvokeAsync(StateHasChanged);
+    }
+}

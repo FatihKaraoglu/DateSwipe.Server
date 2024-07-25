@@ -1,0 +1,76 @@
+﻿@page "/chat"
+@using DateSwipe.Client.Services.ChatService
+@using DateSwipe.Client.Services.ProfileService
+@inject ChatService ChatService
+@inject IProfileService ProfileService
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudText Typo="Typo.h5">Chat</MudText>
+    <MudAvatar>
+        @User
+    </MudAvatar>
+    <MudList T="string">
+        @foreach (var message in Messages)
+        {
+            <MudPaper>
+                <MudListItem>@message</MudListItem>
+            </MudPaper>
+        }
+    </MudList>
+    <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage">
+    </MudTextField>
+</MudContainer>
+
+@code {
+    private List<string> Messages { get; set; } = new List<string>();
+    private string CurrentMessage { get; set; } = string.Empty;
+    private string User { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Gettign AuthState from Index.razor");
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var profile = await ProfileService.GetProfile();
+            User = profile.Data?.UserName;
+
+            ChatService.OnMessageReceived += HandleMessageReceived;
+            await ChatService.StartAsync();
+
+            // Load existing messages
+            var messagesResponse = await ChatService.GetChatMessagesAsync();
+            foreach (var msg in messagesResponse)
+            {
+                Messages.Add($"{msg.UserId}: {msg.Message}");
+            }
+            StateHasChanged();
+        }
+        
+    }
+
+    private async Task HandleMessageReceived(string user, string message)
+    {
+        Messages.Add($"{user}: {message}");
+        StateHasChanged();
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrEmpty(CurrentMessage))
+        {
+            await ChatService.SendMessage(CurrentMessage);
+            CurrentMessage = string.Empty;
+        }
+    }
+
+    public void Dispose()
+    {
+        ChatService.OnMessageReceived -= HandleMessageReceived;
+        ChatService.StopAsync();
+    }
+}

@@ -1,0 +1,82 @@
+﻿@page "/"
+@using DateSwipe.Client.Services.LoadingService
+@using DateSwipe.Client.Shared
+@using DateSwipe.Client.Services.DateDecisionService
+@using DateSwipe.Client.Services.InvitationService
+@using DateSwipe.Client.Shared
+@using DateSwipe.Client.SignalR
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IInvitationService InvitationService
+@inject IDialogService DialogService
+@inject IDateDecisionService DateDecisionService
+@inject ISnackbar Snackbar
+@inject LoadingService LoadingService
+@inject SignalRService SignalRService
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="px-2 d-flex justify-content-center flex-column overflow-hidden">
+
+    @if (Cards != null && Cards.Any())
+    {
+        <SwipeCard Cards="Cards"></SwipeCard>
+    }
+    </MudContainer>
+
+@code {
+    private bool? isInCouple;
+    private List<SwipeCardModel> Cards;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadingService.RunWithLoading(async () =>
+            {
+                Console.WriteLine("Gettign AuthState from Index.razor");
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+
+                if (user.Identity.IsAuthenticated)
+                {
+                    var response = await InvitationService.IsUserInCouple();
+                    if (response.Success)
+                    {
+                        isInCouple = response.Data;
+                    }
+                    else
+                    {
+                        isInCouple = false;
+                    }
+
+                    await FetchDateIdeas();
+                }
+            }
+
+            );
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+   
+    }
+
+    private async Task FetchDateIdeas()
+    {
+
+        var dateIdeasResponse = await DateDecisionService.GetDateIdeasAsync();
+        if (dateIdeasResponse.Success && dateIdeasResponse.Data != null)
+        {
+            Cards = dateIdeasResponse.Data.Select(idea => new SwipeCardModel
+                {
+                    DateIdea = idea,
+                    Id = idea.Id
+                }).ToList();
+        }
+    }
+
+
+}

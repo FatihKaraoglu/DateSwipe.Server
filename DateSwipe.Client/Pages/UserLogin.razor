@@ -1,0 +1,43 @@
+﻿@page "/login"
+@page "/signup"
+@using DateSwipe.Client.Shared
+@layout StartLayout
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudTabs Centered="true"  @bind-ActivePanelIndex="@activeTabIndex">
+    <MudTabPanel Text="Login">
+        <Login />
+    </MudTabPanel>
+    <MudTabPanel Text="Sign Up">
+        <Register />
+    </MudTabPanel>
+</MudTabs>
+
+@code {
+    private int activeTabIndex;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        SetActiveTab();
+    }
+
+    protected override void OnParametersSet()
+    {
+        SetActiveTab();
+    }
+
+    private void SetActiveTab()
+    {
+        var currentUri = Navigation.Uri;
+        if (currentUri.EndsWith("/login"))
+        {
+            activeTabIndex = 0;
+        }
+        else if (currentUri.EndsWith("/signup"))
+        {
+            activeTabIndex = 1;
+        }
+    }
+}

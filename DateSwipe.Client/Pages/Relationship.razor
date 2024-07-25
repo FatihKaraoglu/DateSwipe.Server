@@ -1,0 +1,140 @@
+﻿@page "/relationship"
+@using DateSwipe.Client.Services.InvitationService
+@using DateSwipe.Client.Services.ProfileService
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IInvitationService InvitationService
+@inject IProfileService ProfileService
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-4">
+    <div class="d-flex flex-row justify-content-around">
+        <MudAvatar Class="avatar">
+            <MudImage Src="@ProfileService.User.ProfilePicture"></MudImage>
+        </MudAvatar>
+
+        <MudAvatar Variant="Variant.Outlined" Class="position-relative avatar">
+            @if (ProfileService.Partner == null || string.IsNullOrEmpty(ProfileService.Partner.ProfilePicture))
+            {
+                <MudIcon Class="position-relative avatar-inner" Icon="@Icons.Material.Outlined.Favorite"></MudIcon>
+                <MudIcon Class="inner-icon avatar-inner-badge" Color="Color.Primary" Icon="@Icons.Material.Outlined.QuestionMark" @onclick="OpenInvitation"></MudIcon>
+            }
+            else
+            {
+                <MudImage Src="@ProfileService.Partner.ProfilePicture"></MudImage>
+            }
+        </MudAvatar>
+    </div>
+
+    <MudDrawer @bind-Open="@_open" Anchor="@Anchor.Bottom" Elevation="1" Variant="@DrawerVariant.Temporary" Height="90%">
+        <MudDrawerHeader Class="d-flex flex-row justify-content-between">
+            <MudText Typo="Typo.h6">Invitation</MudText>
+            <MudIconButton Class="transition icon-button" Color="Color.Primary" Icon="@Icons.Material.Rounded.Cancel" OnClick="CloseInvitation"></MudIconButton>
+        </MudDrawerHeader>
+
+        <MudContainer MaxWidth="MaxWidth.ExtraSmall">
+            <div class="d-flex justify-content-center my-2">
+                @foreach (var method in new[] { Icons.Custom.Brands.WhatsApp, Icons.Custom.Brands.Gmail, Icons.Custom.Brands.Discord, Icons.Custom.Brands.X, Icons.Custom.Brands.TikTok, Icons.Custom.Brands.Facebook })
+                {
+                    <MudIconButton Icon=@method Size="Size.Large" @onclick="() => ShareLink(method)"></MudIconButton>
+                }
+            </div>
+
+            <div class="d-flex align-items-center">
+                <MudTextField @bind-Value="invitationLink"
+                              ReadOnly="true"
+                              AdornmentIcon="@Icons.Material.Filled.ContentCopy"
+                              AdornmentColor="Color.Primary"
+                              Adornment="Adornment.End"
+                              OnAdornmentClick="CopyLinkToClipboard"
+                              Label="Invitation Link"
+                              FullWidth="true" />
+            </div>
+        </MudContainer>
+    </MudDrawer>
+</MudContainer>
+
+@code {
+    public bool _open { get; set; }
+    private ElementReference CopyTextField;
+    private string invitationLink = "https://example.com/invite?code=youruniquecode"; // Example link
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateInvitationLink();
+        var response = await ProfileService.GetProfile();
+
+        if (!response.Success)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+
+        var partnerResponse = await ProfileService.GetPartnerProfile();
+
+        if (!partnerResponse.Success)
+        {
+            Snackbar.Add(partnerResponse.Message, Severity.Error);
+        }
+    }
+
+    private void OpenInvitation()
+    {
+        _open = true;
+    }
+
+    private void CloseInvitation()
+    {
+        _open = false;
+    }
+
+    private void CopyLinkToClipboard()
+    {
+        // JS interop to copy the link to the clipboard
+        JS.InvokeVoidAsync("navigator.clipboard.writeText", invitationLink);
+        Snackbar.Add("Link copied to clipboard!", Severity.Success);
+    }
+
+    private async Task UpdateInvitationLink()
+    {
+        var result = await InvitationService.GenerateInvitationLinkAsync();
+        if (result.Success)
+        {
+            invitationLink = result.Data; // Update the link based on the method if needed
+        }
+        else
+        {
+            Console.WriteLine("Failed to generate link: " + result.Message);
+        }
+        StateHasChanged();
+    }
+
+    private async Task ShareLink(string method)
+    {
+        var url = string.Empty;
+        var encodedLink = Uri.EscapeDataString(invitationLink);
+        switch (method)
+        {
+            case Icons.Custom.Brands.WhatsApp:
+                url = $"https://wa.me/?text={encodedLink}";
+                break;
+            case Icons.Custom.Brands.Facebook:
+                url = $"https://www.facebook.com/sharer/sharer.php?u={encodedLink}";
+                break;
+            case Icons.Custom.Brands.X:
+                url = $"https://twitter.com/intent/tweet?url={encodedLink}";
+                break;
+            case Icons.Custom.Brands.Gmail:
+                url = $"mailto:?body={encodedLink}";
+                break;
+            case Icons.Custom.Brands.Discord:
+                url = $"https://discord.com/channels/@me?url={encodedLink}";
+                break;
+            case Icons.Custom.Brands.TikTok:
+                url = $"https://www.tiktok.com/share?url={encodedLink}";
+                break;
+        }
+        if (!string.IsNullOrEmpty(url))
+        {
+            await JS.InvokeVoidAsync("open", url, "_blank");
+        }
+    }
+}

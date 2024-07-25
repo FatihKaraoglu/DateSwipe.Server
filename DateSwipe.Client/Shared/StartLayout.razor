@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudThemeProvider Theme="@MyCustomTheme" />
+
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-column justify-content-center align-content-space-around gap-15 h-100 vh-100">
+    @Body
+</MudContainer>
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Background = "#FFF",
+                Primary = "#D42163",
+                Error = "#DC143C",
+                TextPrimary = "#161616"
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Background = "#161616",
+                AppbarBackground = "#1D1E20",
+                TextPrimary = "#FFFFFF", // White color for the text and icons
+                TextSecondary = "#515151",
+                Primary = "#D42163",
+                Error = "#DC143C"
+            },
+            Typography = new Typography()
+            {
+                Default = new Default()
+                {
+                    FontFamily = new[] { "Jost", "Helvetica", "Arial", "sans-serif" },
+                }
+            }
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.GetAuthenticationStateAsync();
+    }
+}

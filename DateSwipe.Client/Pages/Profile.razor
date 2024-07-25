@@ -1,0 +1,117 @@
+﻿@page "/profile"
+@using DateSwipe.Client.Services.ProfileService;
+@using DateSwipe.Shared.DTO;
+@inject IProfileService ProfileService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-column align-items-center">
+    <MudFileUpload T="IBrowserFile" OnFilesChanged="HandleFilesChanged" SuppressOnChangeWhenInvalid="true">
+        <ActivatorContent>
+             <div class="avatar-container">
+                <MudAvatar Class="mb-2 mt-2" Size="Size.Large">
+                    <MudImage Src="@ProfileService.User.ProfilePicture" />
+                    <div class="overlay">
+                        <MudIcon Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Large" />
+                    </div>
+                </MudAvatar>
+            </div
+        </ActivatorContent>
+    </MudFileUpload>
+    <MudText Class="mb-1">
+        @ProfileService.User.UserName
+    </MudText>
+    <MudText Typo="Typo.subtitle2">
+        Member since @ProfileService.User.DateCreated.ToString("dd.MM.yyyy")
+    </MudText>
+
+    <MudText>
+        Preferences
+    </MudText>
+</MudContainer>
+
+<style>
+    .avatar-container {
+        position: relative;
+    }
+
+        .avatar-container .overlay {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+            transition: .5s ease;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+
+        .avatar-container:hover .overlay {
+            opacity: 1;
+        }
+
+            .avatar-container:hover .overlay MudIcon {
+                display: block;
+            }
+
+    .overlay MudIcon {
+        display: none;
+    }
+</style>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await ProfileService.GetProfile();
+
+        if (!response.Success)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+    }
+
+   
+    private async Task HandleFilesChanged(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles();
+        if (files.Any())
+        {
+            var file = files.First();
+            const long maxSize = 512000; // 500KB
+
+            try
+            {
+                if (file.Size > maxSize)
+                {
+                    throw new Exception("File size exceeds the 500KB limit.");
+                }
+
+                using (var stream = file.OpenReadStream(maxSize))
+                {
+                    var buffer = new byte[file.Size];
+                    await stream.ReadAsync(buffer);
+
+                    var response = await ProfileService.UploadProfilePicture(buffer, file.Name);
+                    if (response.Success)
+                    {
+                        ProfileService.User.ProfilePicture = response.Data;
+                        Snackbar.Add("Profile picture updated successfully.", Severity.Success);
+                    }
+                    else
+                    {
+                        Snackbar.Add(response.Message, Severity.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+    }
+}

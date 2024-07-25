@@ -1,0 +1,85 @@
+﻿@page "/accept-invitation"
+@page "/accept-invitation/{Token}"
+@using DateSwipe.Client.Services.ProfileService
+@using DateSwipe.Client.Services.InvitationService
+@using MudBlazor
+@inject IProfileService ProfileService
+@inject IInvitationService InvitationService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-column align-items-center mt-4">
+    <MudAvatar Class="mb-2" Size="Size.Large">
+        <MudImage Src="@inviterProfile.ProfilePicture" />
+    </MudAvatar>
+    <MudText Typo="Typo.h6">@inviterProfile.UserName</MudText>
+    <MudText Class="mb-4">has invited you to join as a couple.</MudText>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AcceptInvite">Accept Invitation</MudButton>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Token { get; set; }
+
+    private ProfileDTO inviterProfile;
+    private bool loading = false;
+    private bool success = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Ensure the token is fetched if it is not directly available
+        if (string.IsNullOrEmpty(Token))
+        {
+            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+            var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            Token = queryParams["token"];
+        }
+
+        if (!string.IsNullOrEmpty(Token))
+        {
+            await LoadInviterProfile();
+        }
+        else
+        {
+            Snackbar.Add("Invalid invitation link.", Severity.Error);
+        }
+    }
+
+    private async Task LoadInviterProfile()
+    {
+        var response = await ProfileService.GetInviterProfileAsync(Token);
+        if (response.Success)
+        {
+            inviterProfile = response.Data;
+            success = true;
+        }
+        else
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+            success = false;
+        }
+        StateHasChanged();
+    }
+
+    private async Task AcceptInvite()
+    {
+        try
+        {
+            var response = await InvitationService.AcceptInvitationAsync(Token);
+            if (response.Success)
+            {
+                Snackbar.Add(response.Data, Severity.Success);
+                Navigation.NavigateTo("/"); // Redirect to home or any other page
+            }
+            else
+            {
+                Snackbar.Add(response.Message, Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+    }
+}
