@@ -13,14 +13,22 @@
         </MudAvatar>
 
         <MudAvatar Variant="Variant.Outlined" Class="position-relative avatar">
-            @if (ProfileService.Partner == null || string.IsNullOrEmpty(ProfileService.Partner.ProfilePicture))
+            @if (ProfileService.Partner == null)
             {
                 <MudIcon Class="position-relative avatar-inner" Icon="@Icons.Material.Outlined.Favorite"></MudIcon>
                 <MudIcon Class="inner-icon avatar-inner-badge" Color="Color.Primary" Icon="@Icons.Material.Outlined.QuestionMark" @onclick="OpenInvitation"></MudIcon>
             }
             else
             {
-                <MudImage Src="@ProfileService.Partner.ProfilePicture"></MudImage>
+                if (!string.IsNullOrEmpty(ProfileService.Partner.ProfilePicture))
+                {
+                    <MudImage Src="@ProfileService.Partner.ProfilePicture"></MudImage>
+                }
+                else
+                {
+                    <MudIcon Class="position-relative avatar-inner" Icon="@Icons.Material.Outlined.Favorite"></MudIcon>
+                }
+
             }
         </MudAvatar>
     </div>

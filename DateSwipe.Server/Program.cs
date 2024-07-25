@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://192.168.2.32:5097") // Replace with your actual IP address and port
+        policy.WithOrigins("https://192.168.2.32:7039") // Replace with your actual IP address and port
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Important for SignalR

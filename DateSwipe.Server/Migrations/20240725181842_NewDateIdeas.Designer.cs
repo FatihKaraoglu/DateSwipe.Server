@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DateSwipe.Server.Migrations
 {
     [DbContext(typeof(DatingDbContext))]
-    [Migration("20240725133153_Initial")]
-    partial class Initial
+    [Migration("20240725181842_NewDateIdeas")]
+    partial class NewDateIdeas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,71 +199,267 @@ namespace DateSwipe.Server.Migrations
                         {
                             Id = 11,
                             Description = "Have fun at an amusement park.",
-                            ImageUrl = "https://images.unsplash.com/photo-1658134636987-a3f9aa63c9af?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjd8fGFtdXNtZW50JTIwcGFya3xlbnwwfHwwfHx8MA%3D%3D",
+                            ImageUrl = "https://images.unsplash.com/photo-1658134636987-a3f9aa63c9af?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjd8fGFtdXNtZW50JTIwcGFya3xlbnwwfHwwfHx8Mg%3D%3D",
                             Title = "Amusement park"
                         },
                         new
                         {
                             Id = 12,
-                            Description = "Watch a play or musical together.",
-                            ImageUrl = "https://images.unsplash.com/photo-1625843706570-10ff8fd9b796?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE2fHx0aGVhdGVyfGVufDB8fDB8fHwy",
-                            Title = "Theater show"
+                            Description = "Attend a live music concert.",
+                            ImageUrl = "https://images.unsplash.com/photo-1514533450685-4493e01d1fdc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGNvbmNlcnR8ZW58MHx8MHx8fDI%3D",
+                            Title = "Concert"
                         },
                         new
                         {
                             Id = 13,
                             Description = "Spend a night under the stars camping.",
-                            ImageUrl = "https://images.unsplash.com/photo-1552176802-54b65e0f2024?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Njd8fGNhbXBpbmd8ZW58MHx8MHx8fDI%3D",
-                            Title = "Camping trip"
+                            ImageUrl = "https://images.unsplash.com/photo-1539183204366-63a0589187ab?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGNhbXBpbmd8ZW58MHx8MHx8fDI%3D",
+                            Title = "Camping"
                         },
                         new
                         {
                             Id = 14,
-                            Description = "Take an art class together.",
-                            ImageUrl = "https://images.unsplash.com/photo-1504252060328-1455a645f4e3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzl8fGFydCUyMGNvbXBsZXRpb258ZW58MHx8MHx8fDI%3D",
-                            Title = "Art class"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Description = "Visit a zoo and see exotic animals.",
-                            ImageUrl = "https://images.unsplash.com/photo-1570197786657-f0b067e3f2dc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTN8fHpvb3xlbnwwfHwwfHx8Mg%3D%3D",
-                            Title = "Zoo visit"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Description = "Go ice skating at a local rink.",
-                            ImageUrl = "https://images.unsplash.com/photo-1600721651867-7ab4c12a67f1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGljZSUyMHNrYXRpbmd8ZW58MHx8MHx8fDI%3D",
+                            Description = "Enjoy ice skating together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1609987051964-7bc15e54e9bc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8SWNlJTIwU2thdGluZyUyMGNvdXBsZXxlbnwwfHwwfHx8Mg%3D%3D",
                             Title = "Ice skating"
                         },
                         new
                         {
-                            Id = 17,
-                            Description = "Sing your favorite songs at a karaoke bar.",
-                            ImageUrl = "https://images.unsplash.com/photo-1563357999-7c1893e1b6ca?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTB8fGthcmFva2V8ZW58MHx8MHx8fDI%3D",
+                            Id = 15,
+                            Description = "Sing your heart out at a karaoke bar.",
+                            ImageUrl = "https://images.unsplash.com/photo-1516108759901-daf1a20f9281?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c2luZ2luZyUyMGNvdXBsZXxlbnwwfHwwfHx8Mg%3D%3D",
                             Title = "Karaoke night"
                         },
                         new
                         {
+                            Id = 16,
+                            Description = "Take a spontaneous road trip.",
+                            ImageUrl = "https://images.unsplash.com/photo-1495610379499-a1f03b4732a7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHJvYWR0cmlwfGVufDB8fDB8fHwy",
+                            Title = "Road trip"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Experience a hot air balloon ride.",
+                            ImageUrl = "https://images.unsplash.com/photo-1502119095323-253837f293f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGhvdCUyMGFpciUyMGJhbGxvb258ZW58MHx8MHx8fDI%3D",
+                            Title = "Hot air balloon ride"
+                        },
+                        new
+                        {
                             Id = 18,
-                            Description = "Go for a bike ride together.",
-                            ImageUrl = "https://images.unsplash.com/photo-1562059390-a761a084768d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjJ8fGJpa2luZyUyMGNvdXBsZXxlbnwwfHwwfHx8Mg%3D%3D",
-                            Title = "Bike ride"
+                            Description = "Solve puzzles in an escape room.",
+                            ImageUrl = "https://images.unsplash.com/photo-1580256079206-46a04a632758?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzV8fGVzY2FwZXJvb218ZW58MHx8MHx8fDI%3D",
+                            Title = "Escape room"
                         },
                         new
                         {
                             Id = 19,
-                            Description = "Try horseback riding for a unique experience.",
-                            ImageUrl = "https://images.unsplash.com/photo-1638103188975-08f3ad6ae623?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTA0fHxob3JzZWJhY2slMjByaWRpbmd8ZW58MHx8MHx8fDI%3D",
-                            Title = "Horseback riding"
+                            Description = "Have fun playing mini golf.",
+                            ImageUrl = "https://images.unsplash.com/photo-1647884756876-9b230e2f75a9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWluaWF0dXJlJTIwZ29sZnxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Mini golf"
                         },
                         new
                         {
                             Id = 20,
-                            Description = "Challenge yourselves with an escape room game.",
-                            ImageUrl = "https://images.unsplash.com/photo-1585864731036-6ab6fb54f063?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjF8fGVzY2FwZSUyMHJvb218ZW58MHx8MHx8fDI%3D",
-                            Title = "Escape room"
+                            Description = "Make pottery together in a class.",
+                            ImageUrl = "https://images.unsplash.com/photo-1635304438525-106382337f9b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8cG90dGVyeXxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Pottery class"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Description = "Watch a live theater play.",
+                            ImageUrl = "https://images.unsplash.com/photo-1503095396549-807759245b35?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dGhlYXRlcnxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Theater play"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Description = "See animals at the zoo.",
+                            ImageUrl = "https://images.unsplash.com/photo-1503918756811-975bd3397178?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8em9vfGVufDB8fDB8fHwy",
+                            Title = "Zoo visit"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Description = "Go for a bike ride together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1476345692822-c597e09a0331?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGJpa2luZ3xlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Biking"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Description = "Explore a local farmers market.",
+                            ImageUrl = "https://images.unsplash.com/photo-1514583079045-e928a4732ade?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGZhcm1lcnMlMjBtYXJrZXR8ZW58MHx8MHx8fDI%3D",
+                            Title = "Farmers market"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Description = "Go horseback riding.",
+                            ImageUrl = "https://images.unsplash.com/photo-1633767979501-6225d151ba70?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aG9yc2ViYWNrJTIwcmlkaW5nfGVufDB8fDB8fHwy",
+                            Title = "Horseback riding"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Description = "Cook a meal together at home.",
+                            ImageUrl = "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGNvb2tpbmd8ZW58MHx8MHx8fDI%3D",
+                            Title = "Cooking at home"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Description = "Play board games.",
+                            ImageUrl = "https://images.unsplash.com/photo-1708863827400-00a5c21c10f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJvYXJkZ2FtZXN8ZW58MHx8MHx8fDI%3D",
+                            Title = "Board games"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Description = "Volunteer at a local charity.",
+                            ImageUrl = "https://images.unsplash.com/photo-1618477460930-d8bffff64172?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHZvbHVudGVlcmluZ3xlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Volunteer together"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Description = "Go fishing together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1657982469733-fbf83ebdab8f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZmlzaGluZ3xlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Fishing"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Description = "Take a dance class.",
+                            ImageUrl = "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGRhbmNlJTIwY2xhc3N8ZW58MHx8MHx8fDI%3D",
+                            Title = "Dance class"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Description = "Take photos together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1719937206498-b31844530a96?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxzZWFyY2h8MXx8cGhvdG9ncmFwaHl8ZW58MHx8MHx8fDI%3D",
+                            Title = "Photography day"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Description = "Relax with a spa day.",
+                            ImageUrl = "https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHNwYXxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Spa day"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Description = "Have a cooking competition.",
+                            ImageUrl = "https://images.unsplash.com/photo-1576097449798-7c7f90e1248a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGNvb2tpbmclMjBjb21wZXRpdGlvbnxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Cooking competition"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Description = "Enjoy a trivia night.",
+                            ImageUrl = "https://images.unsplash.com/photo-1570937943292-a574bd5bc722?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dHJpdmlhfGVufDB8fDB8fHwy",
+                            Title = "Trivia night"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Description = "Plant a garden together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1597868165956-03a6827955b1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Z2FyZGVuJTIwd29ya3xlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Plant a garden"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Description = "Visit an art gallery.",
+                            ImageUrl = "https://images.unsplash.com/photo-1637680298164-74342b63a61a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YXJ0JTIwZ2FsbGVyeXxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Art gallery"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Description = "Browse books at a bookstore.",
+                            ImageUrl = "https://images.unsplash.com/photo-1671202867630-c897313a0a22?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Ym9va3N0b3JlfGVufDB8fDB8fHwy",
+                            Title = "Bookstore date"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Description = "Go surfing together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1502933691298-84fc14542831?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHN1cmZpbmd8ZW58MHx8MHx8fDI%3D",
+                            Title = "Surfing"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Description = "Experience jet skiing.",
+                            ImageUrl = "https://images.unsplash.com/photo-1650939489556-a6fc47e28372?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8amV0JTIwc2tpaW5nfGVufDB8fDB8fHwy",
+                            Title = "Jet skiing"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Description = "Go rock climbing.",
+                            ImageUrl = "https://images.unsplash.com/photo-1522362485439-83fcff4673f0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cm9jayUyMGNsaW1iaW5nfGVufDB8fDB8fHwy",
+                            Title = "Rock climbing"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Description = "Attend a yoga class together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1517363898874-737b62a7db91?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fHlvZ2F8ZW58MHx8MHx8fDI%3D",
+                            Title = "Yoga class"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Description = "Visit a dog park with your pets.",
+                            ImageUrl = "https://images.unsplash.com/photo-1667230228326-c881966e2a29?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZG9ncGFya3xlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Dog park"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Description = "Explore an aquarium.",
+                            ImageUrl = "https://images.unsplash.com/photo-1459207982041-089ff95be891?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YXF1YXJpdW18ZW58MHx8MHx8fDI%3D",
+                            Title = "Aquarium visit"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Description = "Have fun at a trampoline park.",
+                            ImageUrl = "https://images.unsplash.com/photo-1626817654900-c07008365317?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRyYW1wb2xpbmV8ZW58MHx8MHx8fDI%3D",
+                            Title = "Trampoline park"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Description = "Play laser tag.",
+                            ImageUrl = "https://images.unsplash.com/photo-1542810205-0a5b379f9c52?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGxhc2VyJTIwdGFnfGVufDB8fDB8fHwy",
+                            Title = "Laser tag"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Description = "Race go-karts together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1505570554449-69ce7d4fa36b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGdvJTIwa2FydHxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Go-kart racing"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Description = "Take a painting class.",
+                            ImageUrl = "https://images.unsplash.com/photo-1476055090065-a605fefd840e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFpbnRpbmclMjBhY3Rpdml0eXxlbnwwfHwwfHx8Mg%3D%3D",
+                            Title = "Painting class"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Description = "Go skiing together.",
+                            ImageUrl = "https://images.unsplash.com/photo-1498576260462-eefc9d0ce9f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8c2tpaW5nfGVufDB8fDB8fHwy",
+                            Title = "Skiing"
                         });
                 });
 
