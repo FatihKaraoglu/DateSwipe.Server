@@ -39,15 +39,15 @@
             <MudIconButton Class="transition icon-button" Color="Color.Primary" Icon="@Icons.Material.Rounded.Cancel" OnClick="CloseInvitation"></MudIconButton>
         </MudDrawerHeader>
 
-        <MudContainer MaxWidth="MaxWidth.ExtraSmall">
+        <MudContainer MaxWidth="MaxWidth.Medium">
             <div class="d-flex justify-content-center my-2">
-                @foreach (var method in new[] { Icons.Custom.Brands.WhatsApp, Icons.Custom.Brands.Gmail, Icons.Custom.Brands.Discord, Icons.Custom.Brands.X, Icons.Custom.Brands.TikTok, Icons.Custom.Brands.Facebook })
+                @foreach (var method in new[] { Icons.Custom.Brands.WhatsApp, Icons.Custom.Brands.Discord, Icons.Custom.Brands.X, Icons.Custom.Brands.TikTok, Icons.Custom.Brands.Facebook })
                 {
-                    <MudIconButton Icon=@method Size="Size.Large" @onclick="() => ShareLink(method)"></MudIconButton>
+                    <MudIconButton Icon=@method Size="Size.Medium" @onclick="() => ShareLink(method)"></MudIconButton>
                 }
             </div>
 
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center my-4">
                 <MudTextField @bind-Value="invitationLink"
                               ReadOnly="true"
                               AdornmentIcon="@Icons.Material.Filled.ContentCopy"

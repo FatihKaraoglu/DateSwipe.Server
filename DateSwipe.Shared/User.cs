@@ -18,6 +18,7 @@ namespace DateSwipe.Shared
         public int? CoupleId { get; set; } // Couple identifier
         public string? ProfilePictureUrl { get; set; }
         public string Name { get; set; }
+        public bool SubscribedToPush { get; set; } = false;
 
         // Navigation property to UserSwipes
         public List<UserSwipe> UserSwipes { get; set; }

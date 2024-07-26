@@ -1,5 +1,7 @@
+using DateSwipe.Client.Server.PushNotificationService;
 using DateSwipe.Server.Data.DataContext;
 using DateSwipe.Server.Hub;
+using DateSwipe.Server.Services;
 using DateSwipe.Server.Services.AuthService;
 using DateSwipe.Server.Services.DateIdeaService;
 using DateSwipe.Server.Services.MatchService;
@@ -9,14 +11,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+//// Add Kestrel configuration to use the specified certificate
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ConfigureHttpsDefaults(httpsOptions =>
+//    {
+//        httpsOptions.ServerCertificate = new X509Certificate2("C:\\Windows\\System32\\devcert.pfx", "Zombeyfan1!");
+//    });
+//});
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("https://192.168.2.32:7039") // Replace with your actual IP address and port
+        policy.WithOrigins("https://192.168.2.32:7039",
+                "http://192.168.2.32:5097",
+                "https://localhost:7039",
+                "http://localhost:5097") // Replace with your actual IP address and port
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Important for SignalR
@@ -44,6 +60,7 @@ builder.Services.AddScoped<IDateIdeaService, DateIdeaService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -108,6 +125,8 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
 
 var app = builder.Build();
 

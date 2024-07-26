@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DateSwipe.Server.Migrations
 {
     [DbContext(typeof(DatingDbContext))]
-    [Migration("20240725181842_NewDateIdeas")]
-    partial class NewDateIdeas
+    [Migration("20240726125812_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
