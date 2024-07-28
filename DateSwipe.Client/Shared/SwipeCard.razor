@@ -1,9 +1,9 @@
 ﻿@page "/swipecard"
+@using DateSwipe.Client.Services.DateDecisionService
 @using DateSwipe.Client.Services.ProfileService
 @using DateSwipe.Client.Shared
 @using DateSwipe.Client.SignalR
 @using DateSwipe.Shared.RequestObject
-@using DateSwipe.Client.Services.DateDecisionService
 @implements IDisposable
 @inject ILogger<SwipeCard> Logger
 @inject IDateDecisionService DateDecisionService
@@ -42,8 +42,8 @@
 </div>
 
 <div class="buttons-container text-center mt-4">
-    <MudIconButton Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Large" class="mud-icon-button" style="color: #00FF00;" />
-    <MudIconButton Icon="@Icons.Material.Outlined.Cancel" Size="Size.Large" class="mud-icon-button" style="color: #FF0000;" />
+    <MudIconButton Icon="@Icons.Material.Outlined.Cancel" Size="Size.Large" class="mud-icon-button" style="color: #FF0000;" OnClick='() => SimulateSwipe("left")' />
+    <MudIconButton Icon="@Icons.Material.Outlined.CheckCircle" Size="Size.Large" class="mud-icon-button" style="color: #00FF00;" OnClick='() => SimulateSwipe("right")' />
 </div>
 
 <MudDrawer @bind-Open="MatchAchieved" Anchor="@Anchor.Bottom" Elevation="4" Variant="@DrawerVariant.Temporary" Class="d-flex align-items-center flex-column gap-10" Height="100%">
@@ -62,7 +62,7 @@
         </div>
 
         <MudButton OnClick="NavigateToChat" Variant="Variant.Filled">Text your Partner!</MudButton>
-        <MudButton OnClick="() => {MatchAchieved = false;}">
+        <MudButton OnClick="() => { MatchAchieved = false; }">
             Great!
         </MudButton>
     </div>
@@ -151,14 +151,8 @@
                     Liked = direction == "right"
                 };
             await DateDecisionService.SwipeAsync(swipeRequest);
-            // Set visibility to false instead of removing the card from DOM directly
-            swipedCard.IsVisible = false;
-            Cards.Remove(swipedCard);
 
-            for (int i = 0; i < Cards.Count; i++)
-            {
-                Cards[i].HasShadow = i < 2;
-            }
+            Cards.Remove(swipedCard);
             StateHasChanged();
         }
     }
@@ -168,8 +162,12 @@
         _objRef?.Dispose();
     }
 
-    private void HandleMouseDown(MouseEventArgs e, SwipeCardModel card)
+    private async Task SimulateSwipe(string direction)
     {
-        // This function seems unused and can be removed if not needed.
+        if (Cards.Any())
+        {
+            var swipedCard = Cards.Last();
+            await JSRuntime.InvokeVoidAsync("simulateSwipe", _objRef, swipedCard.ElementRef, direction);
+        }
     }
 }

@@ -40,7 +40,7 @@
             card.style.transform = `translateX(${direction === 'right' ? 1500 : -1500}px) rotate(${direction === 'right' ? 30 : -30}deg)`;
             setTimeout(() => {
                 dotNetHelper.invokeMethodAsync('OnSwipeDetected', direction);
-                card.style.display = 'none'; // Hide card after swipe
+                window.removeCard(card); // Remove card after swipe
             }, 500);
         } else {
             // Spring back to the original position
@@ -64,6 +64,15 @@
 
     card.addEventListener('mousedown', onStart);
     card.addEventListener('touchstart', onStart);
+};
+
+window.simulateSwipe = async (dotNetHelper, card, direction) => {
+    card.style.transition = 'transform 0.5s ease-in';
+    card.style.transform = `translateX(${direction === 'right' ? 1500 : -1500}px) rotate(${direction === 'right' ? 30 : -30}deg)`;
+    setTimeout(async () => {
+        await dotNetHelper.invokeMethodAsync('OnSwipeDetected', direction);
+        window.removeCard(card); // Remove card after swipe
+    }, 500);
 };
 
 window.removeCard = (card) => {

@@ -4,6 +4,7 @@ using DateSwipe.Server.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DateSwipe.Server.Migrations
 {
     [DbContext(typeof(DatingDbContext))]
-    partial class DatingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240726172944_PushNotifactions")]
+    partial class PushNotifactions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -675,24 +678,6 @@ namespace DateSwipe.Server.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DateSwipe.Shared.UserCategoryPreference", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Liked")
-                        .HasColumnType("bit");
-
-                    b.HasKey("UserId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("UserCategoryPreferences");
-                });
-
             modelBuilder.Entity("DateSwipe.Shared.UserSwipe", b =>
                 {
                     b.Property<int>("Id")
@@ -750,25 +735,6 @@ namespace DateSwipe.Server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DateSwipe.Shared.UserCategoryPreference", b =>
-                {
-                    b.HasOne("DateSwipe.Shared.Category", "Category")
-                        .WithMany("UserPreferences")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DateSwipe.Shared.User", "User")
-                        .WithMany("CategoryPreferences")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DateSwipe.Shared.UserSwipe", b =>
                 {
                     b.HasOne("DateSwipe.Shared.User", "User")
@@ -783,8 +749,6 @@ namespace DateSwipe.Server.Migrations
             modelBuilder.Entity("DateSwipe.Shared.Category", b =>
                 {
                     b.Navigation("DateIdeaCategories");
-
-                    b.Navigation("UserPreferences");
                 });
 
             modelBuilder.Entity("DateSwipe.Shared.DateIdea", b =>
@@ -794,8 +758,6 @@ namespace DateSwipe.Server.Migrations
 
             modelBuilder.Entity("DateSwipe.Shared.User", b =>
                 {
-                    b.Navigation("CategoryPreferences");
-
                     b.Navigation("PushSubscriptions");
 
                     b.Navigation("UserSwipes");

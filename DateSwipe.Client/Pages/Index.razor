@@ -1,10 +1,12 @@
 ﻿@page "/"
 @using DateSwipe.Client.Services.LoadingService
-@using DateSwipe.Client.Shared
 @using DateSwipe.Client.Services.DateDecisionService
 @using DateSwipe.Client.Services.InvitationService
+@using DateSwipe.Client.Services.PushNotificationService
 @using DateSwipe.Client.Shared
 @using DateSwipe.Client.SignalR
+@using DateSwipe.Shared
+@using DateSwipe.Shared.DTO
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -14,19 +16,21 @@
 @inject ISnackbar Snackbar
 @inject LoadingService LoadingService
 @inject SignalRService SignalRService
+@inject IPushNotificationService PushNotificationService
+@inject IJSRuntime JS
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="px-2 d-flex justify-content-center flex-column overflow-hidden">
-
     @if (Cards != null && Cards.Any())
     {
         <SwipeCard Cards="Cards"></SwipeCard>
     }
     </MudContainer>
 
-@code {
+    @code {
     private bool? isInCouple;
     private List<SwipeCardModel> Cards;
     private bool isLoading = true;
+    private bool _isSubscribed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,12 +38,28 @@
         {
             await LoadingService.RunWithLoading(async () =>
             {
-                Console.WriteLine("Gettign AuthState from Index.razor");
+                Console.WriteLine("Getting AuthState from Index.razor");
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 var user = authState.User;
 
                 if (user.Identity.IsAuthenticated)
                 {
+
+                    var subscriptionResponse = await PushNotificationService.GetSubscriptionsAsync();
+                    if (subscriptionResponse.Success)
+                    {
+                        _isSubscribed = subscriptionResponse.Data.Any();
+                    }
+                    else
+                    {
+                        Snackbar.Add($"Failed to check subscription: {subscriptionResponse.Message}", Severity.Error);
+                    }
+
+                    if (!_isSubscribed)
+                    {
+                        await RequestPushNotificationPermissionAsync();
+                    }
+
                     var response = await InvitationService.IsUserInCouple();
                     if (response.Success)
                     {
@@ -52,21 +72,16 @@
 
                     await FetchDateIdeas();
                 }
-            }
-
-            );
-
+            });
         }
         catch (Exception ex)
         {
             Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
         }
-   
     }
 
     private async Task FetchDateIdeas()
     {
-
         var dateIdeasResponse = await DateDecisionService.GetDateIdeasAsync();
         if (dateIdeasResponse.Success && dateIdeasResponse.Data != null)
         {
@@ -78,5 +93,29 @@
         }
     }
 
+    private async Task RequestPushNotificationPermissionAsync()
+    {
+        var permission = await JS.InvokeAsync<string>("requestPushNotificationPermission");
+        if (permission == "granted")
+        {
+            await SubscribeToPushNotificationsAsync();
+        }
+    }
 
+    private async Task SubscribeToPushNotificationsAsync()
+    {
+        var subscription = await JS.InvokeAsync<PushSubscriptionDTO>("subscribeToPushNotifications");
+        if (subscription != null)
+        {
+            var response = await PushNotificationService.SubscribeAsync(subscription);
+            if (response.Success)
+            {
+                _isSubscribed = true;
+            }
+            else
+            {
+                Snackbar.Add($"Failed to subscribe to notifications: {response.Message}", Severity.Error);
+            }
+        }
+    }
 }

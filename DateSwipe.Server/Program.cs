@@ -1,11 +1,12 @@
-using DateSwipe.Client.Server.PushNotificationService;
 using DateSwipe.Server.Data.DataContext;
 using DateSwipe.Server.Hub;
+using DateSwipe.Server.PushNotificationService;
 using DateSwipe.Server.Services;
 using DateSwipe.Server.Services.AuthService;
 using DateSwipe.Server.Services.DateIdeaService;
 using DateSwipe.Server.Services.MatchService;
 using DateSwipe.Server.Services.ProfileService;
+using DateSwipe.Server.Services.UserPreferenceService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -48,7 +49,8 @@ builder.Services.AddDbContext<DatingDbContext>(options =>
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
         options.JsonSerializerOptions.WriteIndented = true;
     }); ;
 builder.Services.AddRazorPages();
@@ -61,6 +63,7 @@ builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
+builder.Services.AddScoped<IUserPreferenceService, UserPreferenceService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

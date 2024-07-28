@@ -9,5 +9,8 @@ namespace DateSwipe.Client.Services.DateDecisionService
         Task<ServiceResponse<List<DateIdeaDTO>>> GetDateIdeasAsync();
         Task<ServiceResponse<string>> SwipeAsync(SwipeRequest request);
         Task<ServiceResponse<DateIdeaDTO>> GetDateIdeaByIdAsync(int id);
+        Task<ServiceResponse<bool>> DeleteAllSwipesAsync();
+        Task<ServiceResponse<List<DateIdeaDTO>>> GetLikedDateIdeasAsync();
+        Task<ServiceResponse<List<DateIdeaDTO>>> GetDislikedDateIdeasAsync();
     }
 }

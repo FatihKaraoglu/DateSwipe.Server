@@ -1,9 +1,15 @@
 ﻿using DateSwipe.Server.Data.DataContext;
 using DateSwipe.Server.Hub;
+using DateSwipe.Server.PushNotificationService;
 using DateSwipe.Server.Services.AuthService;
 using DateSwipe.Shared;
+using DateSwipe.Shared.DTO;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace DateSwipe.Server.Services.MatchService
 {
@@ -12,20 +18,47 @@ namespace DateSwipe.Server.Services.MatchService
         private readonly DatingDbContext _context;
         private readonly IHubContext<DateIdeasHub> _hubContext;
         private readonly IAuthService _authService;
+        private readonly IPushNotificationService _pushNotificationService;
 
-        public MatchService(DatingDbContext context, IHubContext<DateIdeasHub> hubContext, IAuthService authService)
+        public MatchService(DatingDbContext context, IHubContext<DateIdeasHub> hubContext, IAuthService authService, IPushNotificationService pushNotificationService)
         {
             _context = context;
             _hubContext = hubContext;
             _authService = authService;
+            _pushNotificationService = pushNotificationService;
         }
 
-        public async Task SendMatchNoification(int coupleId, string message, int dateId)
+        public async Task SendMatchNotification(int coupleId, string message, int dateId)
         {
             Console.WriteLine($"Sending match notification to couple ID: {coupleId} with message: {message} and date ID: {dateId}");
             await _hubContext.Clients.Group(coupleId.ToString()).SendAsync("ReceiveMatchNotification", message, dateId);
-        }
 
+            // Send push notifications to both users in the couple
+            var coupleUsers = await _context.Users.Where(u => u.CoupleId == coupleId).ToListAsync();
+            foreach (var user in coupleUsers)
+            {
+                var subscriptionsResponse = await _pushNotificationService.GetSubscriptionsAsync(user.Id);
+                if (subscriptionsResponse.Success && subscriptionsResponse.Data != null)
+                {
+                    foreach (var subscriptionDto in subscriptionsResponse.Data)
+                    {
+                        var subscription = new Lib.Net.Http.WebPush.PushSubscription
+                        {
+                            Endpoint = subscriptionDto.Endpoint,
+                            Keys = subscriptionDto.Keys
+                        };
+
+                        var payload = new
+                        {
+                            title = "New Match!",
+                            body = message
+                        };
+
+                        await _pushNotificationService.SendNotificationAsync(subscription, JsonSerializer.Serialize(payload));
+                    }
+                }
+            }
+        }
 
         public async Task<ServiceResponse<string>> Swipe(int dateId, bool liked)
         {
@@ -78,13 +111,9 @@ namespace DateSwipe.Server.Services.MatchService
                 response.Data = "Match";
                 response.Success = true;
                 response.Message = "It's a match!";
-                // Send notification via SignalR
-                //await _hubContext.Clients.Group(coupleId.Value.ToString()).SendAsync("ReceiveMatchNotification", matchMessage);
-                if(coupleId != null)
-                {
-                    await SendMatchNoification(coupleId.Value, matchMessage, dateId);
-                }
-                
+
+                // Send notification via SignalR and Push Notification
+                await SendMatchNotification(coupleId.Value, matchMessage, dateId);
             }
             else
             {
@@ -96,9 +125,4 @@ namespace DateSwipe.Server.Services.MatchService
             return response;
         }
     }
-
-
-
-
-
 }

@@ -1,8 +1,12 @@
-﻿using Lib.Net.Http.WebPush;
+﻿using DateSwipe.Server.PushNotificationService;
+using DateSwipe.Server.Services.AuthService;
+using DateSwipe.Shared;
+using DateSwipe.Shared.DTO;
+using DateSwipe.Shared.RequestObject;
 using Microsoft.AspNetCore.Mvc;
-using DateSwipe.Server.Services;
+using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
-using DateSwipe.Client.Server.PushNotificationService;
 
 namespace DateSwipe.Server.Controllers
 {
@@ -11,43 +15,113 @@ namespace DateSwipe.Server.Controllers
     public class PushNotificationController : ControllerBase
     {
         private readonly IPushNotificationService _pushNotificationService;
+        private readonly IAuthService _authService;
 
-        public PushNotificationController(IPushNotificationService pushNotificationService)
+        public PushNotificationController(IPushNotificationService pushNotificationService, IAuthService authService)
         {
             _pushNotificationService = pushNotificationService;
+            _authService = authService;
         }
 
         [HttpPost("subscribe")]
-        public async Task<IActionResult> Subscribe([FromBody] PushSubscription subscription)
+        public async Task<IActionResult> Subscribe([FromBody] PushSubscriptionDTO subscriptionDto)
         {
-            // Store the subscription in your database for later use
-            // Here you should save the subscription details to a persistent storage
-            // for simplicity, we'll just return OK
+            var response = await _pushNotificationService.AddSubscriptionAsync(subscriptionDto);
+            return Ok(response);
+        }
 
-            return Ok();
+        [HttpGet("subscriptions")]
+        public async Task<IActionResult> GetSubscriptions()
+        {
+            int userId = _authService.GetUserId();
+
+            if(userId == null)
+            {
+                Console.WriteLine("UserId Claim is missing!");
+                return BadRequest();
+            }
+            var response = await _pushNotificationService.GetSubscriptionsAsync(userId);
+            return Ok(response);
         }
 
         [HttpPost("send")]
-        public async Task<IActionResult> SendNotification([FromBody] string message)
+        public async Task<IActionResult> SendNotification([FromBody] SendNotificationRequestObject request)
         {
-            // Retrieve the subscriptions from your database and send the notification
-            // For simplicity, we'll assume you have a method to get all subscriptions
-            var subscriptions = await GetSubscriptionsAsync();
+            var response = new ServiceResponse<bool>();
 
-            foreach (var subscription in subscriptions)
+            foreach (var subscriptionDto in request.Subscriptions)
             {
-                await _pushNotificationService.SendNotificationAsync(subscription, message);
+                var subscription = new Lib.Net.Http.WebPush.PushSubscription
+                {
+                    Endpoint = subscriptionDto.Endpoint,
+                    Keys = subscriptionDto.Keys
+                };
+
+                var result = await _pushNotificationService.SendNotificationAsync(subscription, request.Message);
+
+                if (!result.Success)
+                {
+                    response.Success = false;
+                    response.Message = result.Message;
+                    return BadRequest(response);
+                }
             }
 
-            return Ok();
+            response.Data = true;
+            return Ok(response);
         }
 
-        private Task<List<PushSubscription>> GetSubscriptionsAsync()
+        [HttpPost("send-test")]
+        public async Task<IActionResult> SendTestNotification([FromBody] string message)
         {
-            // Implement your logic to retrieve subscriptions from the database
-            // For example, you could use Entity Framework to get subscriptions from a SQL database
+            int userId = _authService.GetUserId();
 
-            return Task.FromResult(new List<PushSubscription>());
+            if (userId == null)
+            {
+                Console.WriteLine("UserId Claim is missing!");
+                return BadRequest();
+            }
+            var subscriptionsResponse = await _pushNotificationService.GetSubscriptionsAsync(userId);
+            if (!subscriptionsResponse.Success || subscriptionsResponse.Data == null || subscriptionsResponse.Data.Count == 0)
+            {
+                return BadRequest("No subscriptions found.");
+            }
+
+            var response = new ServiceResponse<bool>();
+            foreach (var subscriptionDto in subscriptionsResponse.Data)
+            {
+                var subscription = new Lib.Net.Http.WebPush.PushSubscription
+                {
+                    Endpoint = subscriptionDto.Endpoint,
+                    Keys = subscriptionDto.Keys
+                };
+
+                var payload = new
+                {
+                    title = "Test Notification",
+                    body = message
+                };
+
+                var result = await _pushNotificationService.SendNotificationAsync(subscription, JsonSerializer.Serialize(payload));
+
+                if (!result.Success && result.Message == "Subscription is no longer valid and has been removed.")
+                {
+                    // Log or handle the removal of the invalid subscription
+                    Console.WriteLine("Removed invalid subscription: " + subscription.Endpoint);
+                    continue;
+                }
+                else if (!result.Success)
+                {
+                    response.Success = false;
+                    response.Message = result.Message;
+                    return BadRequest(response);
+                }
+            }
+
+            response.Data = true;
+            return Ok(response);
         }
+
+
     }
 }

@@ -13,6 +13,8 @@ namespace DateSwipe.Server.Data.DataContext
         public DbSet<Category> Categories { get; set; }
         public DbSet<DateIdeaCategory> DateIdeaCategories { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<PushSubscription> PushSubscriptions { get; set; }
+        public DbSet<UserCategoryPreference> UserCategoryPreferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +42,25 @@ namespace DateSwipe.Server.Data.DataContext
                 .HasOne(dic => dic.Category)
                 .WithMany(c => c.DateIdeaCategories)
                 .HasForeignKey(dic => dic.CategoryId);
+
+            modelBuilder.Entity<PushSubscription>()
+           .HasOne(ps => ps.User)
+           .WithMany(u => u.PushSubscriptions)
+           .HasForeignKey(ps => ps.UserId);
+
+            modelBuilder.Entity<UserCategoryPreference>()
+           .HasKey(ucp => new { ucp.UserId, ucp.CategoryId });
+
+            modelBuilder.Entity<UserCategoryPreference>()
+                .HasOne(ucp => ucp.User)
+                .WithMany(u => u.CategoryPreferences)
+                .HasForeignKey(ucp => ucp.UserId);
+
+            modelBuilder.Entity<UserCategoryPreference>()
+                .HasOne(ucp => ucp.Category)
+                .WithMany(c => c.UserPreferences)
+                .HasForeignKey(ucp => ucp.CategoryId);
+
 
             modelBuilder.Entity<DateIdea>().HasData(
                            new DateIdea { Id = 1, Title = "Dinner at a fancy restaurant", Description = "Enjoy a fine dining experience.", ImageUrl = "https://images.unsplash.com/photo-1614387726083-c445e799102b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTQ3fHxDb3VwbGUlMjBEaW5uZXJ8ZW58MHx8MHx8fDA%3D" },

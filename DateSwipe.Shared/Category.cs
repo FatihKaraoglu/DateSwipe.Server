@@ -11,5 +11,6 @@ namespace DateSwipe.Shared
         public int Id { get; set; }
         public string Name { get; set; }
         public ICollection<DateIdeaCategory> DateIdeaCategories { get; set; }
+        public ICollection<UserCategoryPreference> UserPreferences { get; set; }
     }
 }

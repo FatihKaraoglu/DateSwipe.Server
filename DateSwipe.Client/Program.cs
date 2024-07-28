@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using DateSwipe.Client.Services.LoadingService;
 using DateSwipe.Client.Services.ChatService;
+using DateSwipe.Client.Services.PushNotificationService;
+using DateSwipe.Client.Services.UserPreferenceService;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -26,6 +28,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IInvitationService, InvitationService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddSingleton<LoadingService>();
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
+builder.Services.AddScoped<IUserPreferenceService, UserPreferenceService>();
 
 
 

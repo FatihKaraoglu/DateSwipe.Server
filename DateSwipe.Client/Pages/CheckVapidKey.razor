@@ -1,0 +1,36 @@
+﻿@page "/check-vapid-keys"
+@inject IJSRuntime JS
+
+<h3>Check VAPID Keys</h3>
+
+<button @onclick="CheckVapidKeys">Check VAPID Keys</button>
+
+@if (result != null)
+{
+    <div>
+        <p>Public Key: @result.PublicKey</p>
+        <p>Is Public Key Valid: @result.IsPublicKeyValid</p>
+        <p>Private Key: @result.PrivateKey</p>
+        <p>Is Private Key Valid: @result.IsPrivateKeyValid</p>
+    </div>
+}
+
+@code {
+    private VapidKeyValidationResult result;
+
+    private async Task CheckVapidKeys()
+    {
+        var publicKey = "BKB8tH8UnOujhiUhYGxUFmaz3Dlz48NLycUFPuBRMcDikT63O-1SHWoWFiluPMA8OzgtPA4lsRkCVuYnAQfCY90";
+        var privateKey = "MAkwiNJV4k-sBfTGe94ThdzkONcmtC8pqzYQMv2fBAg";
+
+        result = await JS.InvokeAsync<VapidKeyValidationResult>("validateVapidKeys", publicKey, privateKey);
+    }
+
+    public class VapidKeyValidationResult
+    {
+        public string PublicKey { get; set; }
+        public bool IsPublicKeyValid { get; set; }
+        public string PrivateKey { get; set; }
+        public bool IsPrivateKeyValid { get; set; }
+    }
+}

@@ -8,5 +8,8 @@ namespace DateSwipe.Server.Services.DateIdeaService
         Task<ServiceResponse<List<DateIdeaDTO>>> GetDateIdeasAsync();
         Task<ServiceResponse<string>> SwipeAsync(int dateId, bool liked);
         Task<ServiceResponse<DateIdeaDTO>> GetDateIdeaByIdAsync(int id);
+        Task<ServiceResponse<bool>> DeleteAllSwipesAsync();
+        Task<ServiceResponse<List<DateIdeaDTO>>> GetDislikedDateIdeasAsync();
+        Task<ServiceResponse<List<DateIdeaDTO>>> GetLikedDateIdeasAsync();
     }
 }

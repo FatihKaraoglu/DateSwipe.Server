@@ -3,6 +3,9 @@ using DateSwipe.Server.Services.AuthService;
 using DateSwipe.Shared;
 using DateSwipe.Shared.DTO;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DateSwipe.Server.Services.DateIdeaService
 {
@@ -24,18 +27,36 @@ namespace DateSwipe.Server.Services.DateIdeaService
 
             try
             {
+                // Fetch user preferences
+                var userPreferences = await _context.UserCategoryPreferences
+                    .Where(up => up.UserId == userId)
+                    .ToDictionaryAsync(up => up.CategoryId, up => up.Liked);
+
+                // Get all swiped date ideas
                 var swipedDateIds = await _context.UserSwipes
                     .Where(us => us.UserId == userId)
                     .Select(us => us.DateIdeaId)
                     .ToListAsync();
 
+                // Get unswiped date ideas
                 var unswipedDateIdeas = await _context.DateIdeas
                     .Where(di => !swipedDateIds.Contains(di.Id))
                     .Include(di => di.DateIdeaCategories)
                         .ThenInclude(dic => dic.Category)
-                .ToListAsync();
+                    .ToListAsync();
 
-                var dateIdeaDtos = unswipedDateIdeas.Select(di => new DateIdeaDTO
+                // Sort date ideas based on user preferences
+                var sortedDateIdeas = unswipedDateIdeas
+                    .OrderBy(di => !di.DateIdeaCategories.Any(dic => userPreferences.ContainsKey(dic.CategoryId) && userPreferences[dic.CategoryId]))
+                    .ThenBy(di => di.DateIdeaCategories.Any(dic => userPreferences.ContainsKey(dic.CategoryId) && !userPreferences[dic.CategoryId]))
+                    .ToList();
+
+                // Shuffle the date ideas
+                var random = new Random();
+                sortedDateIdeas = sortedDateIdeas.OrderBy(di => random.Next()).ToList();
+
+                // Convert to DTOs
+                var dateIdeaDtos = sortedDateIdeas.Select(di => new DateIdeaDTO
                 {
                     Id = di.Id,
                     Title = di.Title,
@@ -153,6 +174,114 @@ namespace DateSwipe.Server.Services.DateIdeaService
                     }
                 }
 
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<bool>> DeleteAllSwipesAsync()
+        {
+            var response = new ServiceResponse<bool>();
+            var userId = _authService.GetUserId();
+
+            try
+            {
+                var swipes = await _context.UserSwipes.Where(us => us.UserId == userId).ToListAsync();
+                _context.UserSwipes.RemoveRange(swipes);
+                await _context.SaveChangesAsync();
+                response.Data = true;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<DateIdeaDTO>>> GetLikedDateIdeasAsync()
+        {
+            var response = new ServiceResponse<List<DateIdeaDTO>>();
+            var userId = _authService.GetUserId();
+
+            try
+            {
+                var likedDateIdeaIds = await _context.UserSwipes
+                    .Where(us => us.UserId == userId && us.Liked)
+                    .Select(us => us.DateIdeaId)
+                    .ToListAsync();
+
+                var likedDateIdeas = await _context.DateIdeas
+                    .Where(di => likedDateIdeaIds.Contains(di.Id))
+                    .Include(di => di.DateIdeaCategories)
+                        .ThenInclude(dic => dic.Category)
+                    .ToListAsync();
+
+                var dateIdeaDtos = likedDateIdeas.Select(di => new DateIdeaDTO
+                {
+                    Id = di.Id,
+                    Title = di.Title,
+                    Description = di.Description,
+                    ImageUrl = di.ImageUrl,
+                    Categories = di.DateIdeaCategories.Select(dic => new CategoryDto
+                    {
+                        Id = dic.Category.Id,
+                        Name = dic.Category.Name
+                    }).ToList()
+                }).ToList();
+
+                response.Data = dateIdeaDtos;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<DateIdeaDTO>>> GetDislikedDateIdeasAsync()
+        {
+            var response = new ServiceResponse<List<DateIdeaDTO>>();
+            var userId = _authService.GetUserId();
+
+            try
+            {
+                var dislikedDateIdeaIds = await _context.UserSwipes
+                    .Where(us => us.UserId == userId && !us.Liked)
+                    .Select(us => us.DateIdeaId)
+                    .ToListAsync();
+
+                var dislikedDateIdeas = await _context.DateIdeas
+                    .Where(di => dislikedDateIdeaIds.Contains(di.Id))
+                    .Include(di => di.DateIdeaCategories)
+                        .ThenInclude(dic => dic.Category)
+                    .ToListAsync();
+
+                var dateIdeaDtos = dislikedDateIdeas.Select(di => new DateIdeaDTO
+                {
+                    Id = di.Id,
+                    Title = di.Title,
+                    Description = di.Description,
+                    ImageUrl = di.ImageUrl,
+                    Categories = di.DateIdeaCategories.Select(dic => new CategoryDto
+                    {
+                        Id = dic.Category.Id,
+                        Name = dic.Category.Name
+                    }).ToList()
+                }).ToList();
+
+                response.Data = dateIdeaDtos;
                 response.Success = true;
             }
             catch (Exception ex)

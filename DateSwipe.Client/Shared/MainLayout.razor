@@ -1,10 +1,13 @@
-﻿@using DateSwipe.Client.Services.ProfileService
+﻿@using DateSwipe.Client.Services.DateDecisionService
+@using DateSwipe.Client.Services.ProfileService
 @using Microsoft.AspNetCore.Authorization
 @inherits LayoutComponentBase
 @inject IProfileService ProfileService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthService AuthService
+@inject IDateDecisionService DateDecisionService
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode=_darkMode />
 <MudDialogProvider />
@@ -24,10 +27,9 @@
     <MudMainContent>
         @Body
     </MudMainContent>
-    <MudAppBar Bottom="true" Class="d-flex flex-row justify-content-evenly gap-6">
-        <AppBarItem Icon="@Icons.Material.Outlined.Person" Href="/profile" ItemTitle="Profile"/>
-        <AppBarItem Icon="@Icons.Material.Outlined.Home" Href="/" ItemTitle="Home"/>
+    <MudAppBar Bottom="true" Class="d-flex flex-row justify-content-evenly gap-6">    
         <AppBarItemButton Icon="@Icons.Material.Outlined.Settings" ItemTitle="Settings" OnClick="OpenDrawerSettings" />
+        <AppBarItem Icon="@Icons.Material.Outlined.Home" Href="/" ItemTitle="Home"/>
         <AppBarItem Icon="@Icons.Material.Outlined.Message" Href="/chat" ItemTitle="Chat" />
     </MudAppBar>
 
@@ -39,9 +41,11 @@
             </MudIconButton>
         </MudDrawerHeader>
         <MudNavMenu>
-            <MudNavLink Icon=@Icons.Material.Outlined.Person Class="border-bottom-settings" Href="/account">Account Information</MudNavLink>
+            <MudNavLink Icon=@Icons.Material.Outlined.Person Class="border-bottom-settings" Href="/profile">Profile</MudNavLink>
             <MudNavLink Icon=@Icons.Material.Outlined.Payment Class="border-bottom-settings" Href="/payment">Payment Methods</MudNavLink>
             <MudNavLink Icon=@Icons.Material.Outlined.Favorite Class="border-bottom-settings" Href="/relationship">Relationship</MudNavLink>
+            <MudNavLink Icon="@Icons.Material.Outlined.Delete" Class="border-bottom-settings" OnClick="@DateDecisionService.DeleteAllSwipesAsync">Delete All Swipes</MudNavLink>
+            <MudNavLink Icon="@Icons.Material.Outlined.Logout" Class="border-bottom-settings" OnClick="@AuthService.Logout">Logout</MudNavLink> 
         </MudNavMenu>
     </MudDrawer>
 

@@ -1,11 +1,16 @@
 ﻿using DateSwipe.Server.Data.DataContext;
 using DateSwipe.Server.Hub;
+using DateSwipe.Server.PushNotificationService;
+using DateSwipe.Server.Services;
 using DateSwipe.Server.Services.AuthService;
 using DateSwipe.Shared;
+using DateSwipe.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DateSwipe.Server.Controllers
@@ -17,12 +22,14 @@ namespace DateSwipe.Server.Controllers
         private readonly DatingDbContext _context;
         private readonly IAuthService _authService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IPushNotificationService _pushNotificationService;
 
-        public ChatMessagesController(DatingDbContext context, IAuthService authService, IHubContext<ChatHub> hubContext)
+        public ChatMessagesController(DatingDbContext context, IAuthService authService, IHubContext<ChatHub> hubContext, IPushNotificationService pushNotificationService)
         {
             _context = context;
             _authService = authService;
             _hubContext = hubContext;
+            _pushNotificationService = pushNotificationService;
         }
 
         [HttpPost]
@@ -34,6 +41,11 @@ namespace DateSwipe.Server.Controllers
             if (user == null)
             {
                 return BadRequest("User not found");
+            }
+
+            if (!user.CoupleId.HasValue)
+            {
+                return BadRequest("User is not part of a couple");
             }
 
             var chatMessage = new ChatMessage
@@ -50,6 +62,33 @@ namespace DateSwipe.Server.Controllers
             // Notify the other user in the couple
             var coupleId = user.CoupleId.Value;
             await _hubContext.Clients.Group(coupleId.ToString()).SendAsync("ReceiveMessage", user.Name, messageContent);
+
+            // Send push notification to the partner
+            var partner = await _context.Users.FirstOrDefaultAsync(u => u.CoupleId == coupleId && u.Id != userId);
+            if (partner != null)
+            {
+                var subscriptionsResponse = await _pushNotificationService.GetSubscriptionsAsync(partner.Id);
+
+                if (subscriptionsResponse.Success && subscriptionsResponse.Data != null)
+                {
+                    foreach (var subscriptionDto in subscriptionsResponse.Data)
+                    {
+                        var subscription = new Lib.Net.Http.WebPush.PushSubscription
+                        {
+                            Endpoint = subscriptionDto.Endpoint,
+                            Keys = subscriptionDto.Keys
+                        };
+
+                        var payload = new
+                        {
+                            title = "New Message",
+                            body = $"New message from {user.Name}: {messageContent}"
+                        };
+
+                        await _pushNotificationService.SendNotificationAsync(subscription, JsonSerializer.Serialize(payload));
+                    }
+                }
+            }
 
             return Ok(chatMessage);
         }

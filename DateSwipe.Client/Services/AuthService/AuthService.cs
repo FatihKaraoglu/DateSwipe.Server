@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using DateSwipe.Shared;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -11,12 +12,14 @@ namespace DateSwipe.Client.Services.AuthService
         private readonly HttpClient _http;
         private readonly AuthenticationStateProvider _authStateProvider;
         private readonly ILocalStorageService _localStorageService;
+        private readonly NavigationManager _navigationManager;
 
-        public AuthService(HttpClient http, AuthenticationStateProvider authStateProvider, ILocalStorageService localStorageService)
+        public AuthService(HttpClient http, AuthenticationStateProvider authStateProvider, ILocalStorageService localStorageService, NavigationManager navigationManager)
         {
             _http = http;
             _authStateProvider = authStateProvider;
             _localStorageService = localStorageService;
+            _navigationManager = navigationManager;
         }
 
         public async Task<ServiceResponse<bool>> ChangePassword(UserChangePassword request)
@@ -91,6 +94,7 @@ namespace DateSwipe.Client.Services.AuthService
             await _localStorageService.RemoveItemAsync("authToken");
             ((CustomAuthStateProvider)_authStateProvider).NotifyUserLogout();
             _http.DefaultRequestHeaders.Authorization = null;
+            _navigationManager.NavigateTo("/start");
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using DateSwipe.Shared;
 using DateSwipe.Client.Services.AuthService;
 using System.Text.Json.Serialization;
+using DateSwipe.Client.Services.PushNotificationService;
 
 namespace DateSwipe.Client.Services.ChatService
 {

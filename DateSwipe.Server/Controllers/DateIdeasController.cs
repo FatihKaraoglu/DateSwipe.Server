@@ -1,10 +1,8 @@
-﻿using DateSwipe.Server.Data.DataContext;
-using DateSwipe.Server.Services.DateIdeaService;
+﻿using DateSwipe.Server.Services.DateIdeaService;
 using DateSwipe.Shared;
 using DateSwipe.Shared.DTO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace DateSwipe.Server.Controllers
 {
@@ -36,8 +34,30 @@ namespace DateSwipe.Server.Controllers
             }
             return Ok(response);
         }
+
+        [HttpDelete("swipes")]
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteAllSwipes()
+        {
+            var response = await _dateIdeaService.DeleteAllSwipesAsync();
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("liked")]
+        public async Task<ActionResult<ServiceResponse<List<DateIdeaDTO>>>> GetLikedDateIdeas()
+        {
+            var response = await _dateIdeaService.GetLikedDateIdeasAsync();
+            return Ok(response);
+        }
+
+        [HttpGet("disliked")]
+        public async Task<ActionResult<ServiceResponse<List<DateIdeaDTO>>>> GetDislikedDateIdeas()
+        {
+            var response = await _dateIdeaService.GetDislikedDateIdeasAsync();
+            return Ok(response);
+        }
     }
-
-
-
 }
