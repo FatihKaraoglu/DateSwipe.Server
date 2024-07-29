@@ -43,42 +43,30 @@
         </MudContainer>
     </div>
 
-    <div class="align-self-start w-100" >
+    <div class="align-self-start w-100">
         <MudText Class="">
             Liked Dates
         </MudText>
-        <div class="swiper">
-            <div class="swiper-container">
-                <div class="swiper-wrapper">
-                    @foreach (var likedDate in LikedDates)
-                    {
-                        <div class="swiper-slide">
-                            <MudCard Elevation="0" Class="profile-card-container">
-                                <div style="position: relative; width: 100%; height: 200px;">
-                                    <MudCardMedia Image="@likedDate.ImageUrl" Class="profile-card-image" />
-                                </div>
-                                <MudCardContent Class="profile-card-content">
-                                    <div class="d-flex justify-content-center flex-row">
-                                        @foreach (var category in likedDate.Categories)
-                                        {
-                                            <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
-                                        }
-                                    </div>
-                                    <MudText Typo="Typo.h6">@likedDate.Title</MudText>
-                                    <MudText>@likedDate.Description</MudText>
-                                </MudCardContent>
-                            </MudCard>
+        <div class="slick-slider">
+            @foreach (var likedDate in LikedDates)
+            {
+                <div class="profile-card-container">
+                    <div style="position: relative; width: 100%; height: 200px;">
+                        <img src="@likedDate.ImageUrl" class="profile-card-image" />
+                    </div>
+                    <div class="profile-card-content">
+                        <div class="d-flex justify-content-center flex-row">
+                            @foreach (var category in likedDate.Categories)
+                            {
+                                <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
+                            }
                         </div>
-                    }
+                        <MudText Typo="Typo.h6">@likedDate.Title</MudText>
+                        <MudText>@likedDate.Description</MudText>
+                    </div>
                 </div>
-                <!-- Add Pagination -->
-                <div class="swiper-pagination"></div>
-                <!-- Add Navigation -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-            </div>
+            }
         </div>
-       
     </div>
 </MudContainer>
 
@@ -137,32 +125,6 @@
         height: 200px;
         overflow: hidden;
     }
-
-    /* Swiper styles */
-    .swiper-container {
-        width: 100%;
-        padding-top: 50px;
-        padding-bottom: 50px;
-    }
-
-    .swiper-slide {
-        text-align: center;
-        font-size: 18px;
-        background: #fff;
-        /* Center slide text vertically */
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-pack: center;
-        -ms-flex-pack: center;
-        -webkit-justify-content: center;
-        justify-content: center;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-    }
 </style>
 
 @code {
@@ -171,7 +133,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await JSRuntime.InvokeVoidAsync("initializeSwiper");
         var response = await ProfileService.GetProfile();
 
         if (!response.Success)
@@ -195,8 +156,14 @@
         {
             LikedDates = likedDatesResponse.Data;
         }
+    }
 
-        
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeSlick");
+        }
     }
 
     private Color SetChipColor(UserPreferencesDTO preference)

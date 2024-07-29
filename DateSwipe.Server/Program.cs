@@ -30,8 +30,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("https://192.168.2.32:7039",
-                "http://192.168.2.32:5097",
+        policy.WithOrigins(
                 "https://localhost:7039",
                 "http://localhost:5097") // Replace with your actual IP address and port
               .AllowAnyHeader()

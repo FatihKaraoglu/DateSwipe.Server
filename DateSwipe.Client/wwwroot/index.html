@@ -7,13 +7,18 @@
     <title>DateSwipe.Client</title>
     <base href="/" />
 
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <!-- Slick CSS -->
+
     <link rel="stylesheet" href="css/app.css" />
+
+
 
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="DateSwipe.Client.styles.css" rel="stylesheet" />
@@ -33,12 +38,16 @@
     </div>
     <script src="js/swipe.js"></script>
     <script src="js/copyClipboard.js"></script>
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Slick JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <!-- Custom Slick Initialization -->
+    <script src="js/slick-init.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="js/vapidKeys.js"></script>
     <script src="js/pushNotifications.js"></script>
-    <script src="js/swiper-init.js"></script>
     <script>
         async function registerServiceWorker() {
             if ('serviceWorker' in navigator) {

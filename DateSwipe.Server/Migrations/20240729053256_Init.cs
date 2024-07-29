@@ -118,6 +118,53 @@ namespace DateSwipe.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PushSubscriptions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Endpoint = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    P256DH = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Auth = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PushSubscriptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PushSubscriptions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserCategoryPreferences",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    Liked = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserCategoryPreferences", x => new { x.UserId, x.CategoryId });
+                    table.ForeignKey(
+                        name: "FK_UserCategoryPreferences_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserCategoryPreferences_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserSwipes",
                 columns: table => new
                 {
@@ -240,6 +287,16 @@ namespace DateSwipe.Server.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PushSubscriptions_UserId",
+                table: "PushSubscriptions",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserCategoryPreferences_CategoryId",
+                table: "UserCategoryPreferences",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserSwipes_UserId",
                 table: "UserSwipes",
                 column: "UserId");
@@ -258,13 +315,19 @@ namespace DateSwipe.Server.Migrations
                 name: "Invitations");
 
             migrationBuilder.DropTable(
+                name: "PushSubscriptions");
+
+            migrationBuilder.DropTable(
+                name: "UserCategoryPreferences");
+
+            migrationBuilder.DropTable(
                 name: "UserSwipes");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "DateIdeas");
 
             migrationBuilder.DropTable(
-                name: "DateIdeas");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Users");

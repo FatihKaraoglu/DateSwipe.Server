@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\NewFolder\**" />
+    <Content Remove="Services\NewFolder\**" />
+    <EmbeddedResource Remove="Services\NewFolder\**" />
+    <None Remove="Services\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Lib.Net.Http.WebPush" Version="3.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.7" />
@@ -27,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\NewFolder\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
