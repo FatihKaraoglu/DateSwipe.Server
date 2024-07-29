@@ -51,10 +51,10 @@
             @foreach (var likedDate in LikedDates)
             {
                 <div class="profile-card-container">
-                    <div style="position: relative; width: 100%; height: 200px;">
-                        <img src="@likedDate.ImageUrl" class="profile-card-image" />
+                    <div class="profile-card-image-container">
+                        <MudCardMedia Image="@likedDate.ImageUrl" Class="profile-card-image" />
                     </div>
-                    <div class="profile-card-content">
+                    <MudCardContent Class="profile-card-content">
                         <div class="d-flex justify-content-center flex-row">
                             @foreach (var category in likedDate.Categories)
                             {
@@ -63,7 +63,7 @@
                         </div>
                         <MudText Typo="Typo.h6">@likedDate.Title</MudText>
                         <MudText>@likedDate.Description</MudText>
-                    </div>
+                    </MudCardContent>
                 </div>
             }
         </div>
@@ -111,20 +111,59 @@
         background-color: #fff;
         border-radius: 8px;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .profile-card-image-container {
+        width: 100%;
+        height: 150px; /* Adjust the height to fit your needs */
     }
 
     .profile-card-image {
         width: 100%;
-        height: 150px;
+        height: 100%;
         object-fit: cover;
     }
 
     .profile-card-content {
         padding: 10px;
         text-align: center;
-        height: 200px;
+        height: auto; /* Adjust the height to fit your needs */
         overflow: hidden;
+        background-color: white;
     }
+
+    /* Slick styles */
+    .slick-slider {
+        margin: 30px;
+    }
+
+    .slick-slide {
+        display: flex;
+        justify-content: center;
+    }
+
+    .slick-prev,
+    .slick-next {
+        font-size: 2em;
+        color: black !important;
+        background: white !important;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+
+        .slick-prev:hover,
+        .slick-next:hover {
+            color: white !important;
+            background: black !important;
+        }
 </style>
 
 @code {
@@ -156,14 +195,8 @@
         {
             LikedDates = likedDatesResponse.Data;
         }
-    }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("initializeSlick");
-        }
+        await JSRuntime.InvokeVoidAsync("initializeSlick");
     }
 
     private Color SetChipColor(UserPreferencesDTO preference)
