@@ -42,8 +42,8 @@
 </div>
 
 <div class="buttons-container text-center mt-4">
-    <MudIconButton Icon="@Icons.Material.Outlined.Cancel" Size="Size.Large" class="mud-icon-button" style="color: #FF0000;" OnClick='() => SimulateSwipe("left")' />
-    <MudIconButton Icon="@Icons.Material.Outlined.CheckCircle" Size="Size.Large" class="mud-icon-button" style="color: #00FF00;" OnClick='() => SimulateSwipe("right")' />
+    <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Large" class="mud-icon-button" Color="Color.Error" OnClick='() => SimulateSwipe("left")' />
+    <MudIconButton Icon="@Icons.Material.Filled.Check" Size="Size.Large" class="mud-icon-button" Color="Color.Success" OnClick='() => SimulateSwipe("right")' />
 </div>
 
 <MudDrawer @bind-Open="MatchAchieved" Anchor="@Anchor.Bottom" Elevation="4" Variant="@DrawerVariant.Temporary" Class="d-flex align-items-center flex-column gap-10" Height="100%">

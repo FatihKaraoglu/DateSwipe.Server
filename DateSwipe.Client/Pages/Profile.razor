@@ -3,13 +3,14 @@
 @using DateSwipe.Client.Services.ProfileService
 @using DateSwipe.Client.Services.UserPreferenceService
 @using DateSwipe.Shared.DTO
+@using System.Text.Json
 @inject IProfileService ProfileService
 @inject ISnackbar Snackbar
 @inject IUserPreferenceService UserPreferenceService
 @inject IDateDecisionService DateDecisionService
 @inject IJSRuntime JSRuntime
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-column align-items-center">
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-column align-items-center mb-15">
     <MudFileUpload T="IBrowserFile" OnFilesChanged="HandleFilesChanged" SuppressOnChangeWhenInvalid="true">
         <ActivatorContent>
             <div class="avatar-container">
@@ -33,42 +34,46 @@
         <MudText Class="">
             Preferences
         </MudText>
-        <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="d-flex flex-wrap">
+        <div class="d-flex flex-wrap flex-grow-1">
             @foreach (var preference in UserPreferences)
             {
                 <MudChip T="string" Color="@(SetChipColor(preference))" Variant="Variant.Outlined" OnClose="@(() => SetPreference(preference))">
                     @preference.CategoryName
                 </MudChip>
             }
-        </MudContainer>
+        </div>
     </div>
 
-    <div class="align-self-start w-100">
+    <div class="align-self-start w-100 mb-5">
         <MudText Class="">
             Liked Dates
         </MudText>
-        <div class="slick-slider">
+
+        <MudCarousel ShowArrows="true" EnableSwipeGesture="true" ShowBullets="false" Class="mud-width-full profile-carousel " TData="object" NavigationButtonsClass="carousel-nav" SelectedIndex="0">
             @foreach (var likedDate in LikedDates)
             {
-                <div class="profile-card-container">
-                    <div class="profile-card-image-container">
-                        <MudCardMedia Image="@likedDate.ImageUrl" Class="profile-card-image" />
-                    </div>
-                    <MudCardContent Class="profile-card-content">
-                        <div class="d-flex justify-content-center flex-row">
-                            @foreach (var category in likedDate.Categories)
-                            {
-                                <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
-                            }
+                <MudCarouselItem Class="h-100 py-3 px-6">
+                    <MudCard Class="profile-card-container" >
+                        <div class="profile-card-image-container">
+                            <MudCardMedia Image="@likedDate.ImageUrl" Class="profile-card-image" />
                         </div>
-                        <MudText Typo="Typo.h6">@likedDate.Title</MudText>
-                        <MudText>@likedDate.Description</MudText>
-                    </MudCardContent>
-                </div>
+                        <MudCardContent Class="profile-card-content">
+                            <div class="d-flex justify-content-center flex-row">
+                                @foreach (var category in likedDate.Categories)
+                                {
+                                    <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
+                                }
+                            </div>
+                            <MudText Typo="Typo.h6">@likedDate.Title</MudText>
+                            <MudText>@likedDate.Description</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudCarouselItem>
             }
-        </div>
+        </MudCarousel>
     </div>
-</MudContainer>
+    </MudContainer>
+
 
 <style>
     .avatar-container {
@@ -104,21 +109,24 @@
         display: none;
     }
 
+    .profile-carousel {
+        min-height: 350px;
+        max-height: 400px;
+    }
+
     .profile-card-container {
-        width: 200px;
-        height: 350px;
-        margin: 10px;
-        background-color: #fff;
+        height: 100%;
+        width: 90%;
+        margin: auto;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         border-radius: 8px;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
     }
 
     .profile-card-image-container {
         width: 100%;
-        height: 150px; /* Adjust the height to fit your needs */
+        height: 300px; 
+        overflow: hidden;
     }
 
     .profile-card-image {
@@ -128,47 +136,20 @@
     }
 
     .profile-card-content {
-        padding: 10px;
+        padding: 20px;
         text-align: center;
-        height: auto; /* Adjust the height to fit your needs */
-        overflow: hidden;
-        background-color: white;
     }
 
-    /* Slick styles */
-    .slick-slider {
-        margin: 30px;
+    .carousel-nav{
+        padding: 4px;
     }
-
-    .slick-slide {
-        display: flex;
-        justify-content: center;
-    }
-
-    .slick-prev,
-    .slick-next {
-        font-size: 2em;
-        color: black !important;
-        background: white !important;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    }
-
-        .slick-prev:hover,
-        .slick-next:hover {
-            color: white !important;
-            background: black !important;
-        }
 </style>
 
 @code {
     private List<UserPreferencesDTO> UserPreferences { get; set; } = new List<UserPreferencesDTO>();
     private List<DateIdeaDTO> LikedDates { get; set; } = new List<DateIdeaDTO>();
+    private List<DateIdeaDTO> DislikedDates { get; set; } = new List<DateIdeaDTO>();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -194,9 +175,15 @@
         if (likedDatesResponse.Success)
         {
             LikedDates = likedDatesResponse.Data;
+            string likedDatesJson = JsonSerializer.Serialize(LikedDates, new JsonSerializerOptions { WriteIndented = true });
+            // Console.WriteLine(likedDatesJson);
         }
 
-        await JSRuntime.InvokeVoidAsync("initializeSlick");
+        var dislikedDatesResponse = await DateDecisionService.GetDislikedDateIdeasAsync();
+        if (likedDatesResponse.Success)
+        {
+            DislikedDates = dislikedDatesResponse.Data;
+        }
     }
 
     private Color SetChipColor(UserPreferencesDTO preference)

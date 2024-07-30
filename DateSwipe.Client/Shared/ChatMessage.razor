@@ -1,0 +1,14 @@
+﻿ <MudPaper Class="d-flex flex-row align-items-center user px-4 ">
+    <MudAvatar Class="mb-2 mt-2 mr-4" Size="Size.Medium">
+        <MudImage Src="@ProfilePicture" />
+    </MudAvatar>
+    <MudText>
+        @Message
+    </MudText>
+</MudPaper>
+@code {
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string ProfilePicture { get; set; }
+}

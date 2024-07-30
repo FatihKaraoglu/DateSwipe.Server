@@ -53,7 +53,8 @@ namespace DateSwipe.Server.Controllers
                 UserId = userId,
                 CoupleId = user.CoupleId.Value,
                 Message = messageContent,
-                Timestamp = DateTime.UtcNow
+                Timestamp = DateTime.UtcNow,
+                UserName = user.Name
             };
 
             _context.ChatMessages.Add(chatMessage);
@@ -61,7 +62,7 @@ namespace DateSwipe.Server.Controllers
 
             // Notify the other user in the couple
             var coupleId = user.CoupleId.Value;
-            await _hubContext.Clients.Group(coupleId.ToString()).SendAsync("ReceiveMessage", user.Name, messageContent);
+            await _hubContext.Clients.Group(coupleId.ToString()).SendAsync("ReceiveMessage", chatMessage);
 
             // Send push notification to the partner
             var partner = await _context.Users.FirstOrDefaultAsync(u => u.CoupleId == coupleId && u.Id != userId);

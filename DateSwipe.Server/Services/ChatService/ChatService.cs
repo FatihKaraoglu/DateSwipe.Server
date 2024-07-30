@@ -35,7 +35,8 @@ namespace DateSwipe.Server.Services.ChatService
                 UserId = userId,
                 CoupleId = user.CoupleId.Value,
                 Message = message,
-                Timestamp = DateTime.UtcNow
+                Timestamp = DateTime.UtcNow,
+                UserName = user.Name
             };
 
             _context.ChatMessages.Add(chatMessage);

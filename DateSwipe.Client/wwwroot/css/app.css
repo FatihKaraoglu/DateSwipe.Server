@@ -219,12 +219,16 @@ a, .btn-link {
 }
 
 .profile-card-container {
-    width: 100px;
     background-color: #fff;
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 60px;
     height: 100%;
+}
+
+@media (max-width: 600px) {
+    .profile-card-container {
+        max-width: 90%;
+    }
 }
 
 .card-image {
@@ -280,11 +284,43 @@ a, .btn-link {
     color: unset!important;
 }
 
-.swiper{
-    width: 400px;
-    height: auto;
+.message-container {
+    display: flex;
+    justify-content: flex-start;
 }
 
+    .message-container.user {
+        justify-content: flex-end;
+    }
+
+.message-box-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+    .message-box-container.user {
+        flex-direction: row-reverse;
+    }
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.message-text {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.message-box-container.user .message-text {
+    background-color: #e0f7fa;
+}
 
 
 @media (hover: hover) and (pointer: fine) {

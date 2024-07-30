@@ -6,25 +6,33 @@
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<MudContainer MaxWidth="MaxWidth.Small">
+<MudContainer MaxWidth="MaxWidth.Small" Class="mb-8" Fixed="false" Gutters="true">
     <MudText Typo="Typo.h5">Chat</MudText>
-    <MudAvatar>
-        @User
-    </MudAvatar>
-    <MudList T="string">
+    <div class="d-flex flex-column">
         @foreach (var message in Messages)
         {
-            <MudPaper>
-                <MudListItem>@message</MudListItem>
-            </MudPaper>
+            <div class="message-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
+                <div class="flex-row message-box-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
+                    <MudAvatar Class="mb-2 mt-2 mr-2" Size="Size.Medium">
+                        <MudImage Src="@GetProfilePicture(message.UserName)" />
+                    </MudAvatar>
+                    <div class="message-content">
+                        <MudText Class="message-text">
+                            @message.Message
+                        </MudText>
+                        <MudText Style="font-size: 10px; text-align: right;" Typo="Typo.subtitle2">@message.Timestamp </MudText>
+                    </div>
+                </div>
+            </div>
         }
-    </MudList>
-    <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage">
+    </div>
+
+    <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Class="mb-12" >
     </MudTextField>
 </MudContainer>
 
 @code {
-    private List<string> Messages { get; set; } = new List<string>();
+    private List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
     private string CurrentMessage { get; set; } = string.Empty;
     private string User { get; set; }
 
@@ -37,6 +45,7 @@
         if (user.Identity.IsAuthenticated)
         {
             var profile = await ProfileService.GetProfile();
+            var partnerProfile = await ProfileService.GetPartnerProfile();
             User = profile.Data?.UserName;
 
             ChatService.OnMessageReceived += HandleMessageReceived;
@@ -46,16 +55,29 @@
             var messagesResponse = await ChatService.GetChatMessagesAsync();
             foreach (var msg in messagesResponse)
             {
-                Messages.Add($"{msg.UserId}: {msg.Message}");
+                AddMessageToChat(msg);
             }
             StateHasChanged();
         }
-        
+
     }
 
-    private async Task HandleMessageReceived(string user, string message)
+    private string GetProfilePicture(string username)
     {
-        Messages.Add($"{user}: {message}");
+
+        if (username == ProfileService.User.UserName) return (string) ProfileService.User.ProfilePicture;
+        else return (string) ProfileService.Partner.ProfilePicture;
+
+    }
+
+    private void AddMessageToChat(ChatMessage message)
+    {
+        Messages.Add(message);
+    }
+
+    private async Task HandleMessageReceived(ChatMessage chatMessage)
+    {
+        Messages.Add(chatMessage);
         StateHasChanged();
     }
 

@@ -11,6 +11,7 @@ namespace DateSwipe.Shared
         public int Id { get; set; }
         public int CoupleId { get; set; }
         public int UserId { get; set; }
+        public string UserName { get; set; }
         public string Message { get; set; }
         public DateTime Timestamp { get; set; }
     }

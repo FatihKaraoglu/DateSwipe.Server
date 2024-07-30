@@ -23,7 +23,7 @@ namespace DateSwipe.Client.Services.ChatService
         private bool _isConnected;
         private readonly IAuthService _authService;
 
-        public event Func<string, string, Task> OnMessageReceived;
+        public event Func<ChatMessage, Task> OnMessageReceived;
 
         public ChatService(NavigationManager navigationManager, ILogger<ChatService> logger, HttpClient httpClient, IAuthService authService)
         {
@@ -51,11 +51,11 @@ namespace DateSwipe.Client.Services.ChatService
                 })
                 .Build();
 
-            _hubConnection.On<string, string>("ReceiveMessage", async (user, message) =>
+            _hubConnection.On<ChatMessage>("ReceiveMessage", async (chatMessage) =>
             {
                 if (OnMessageReceived != null)
                 {
-                    await OnMessageReceived.Invoke(user, message);
+                    await OnMessageReceived.Invoke(chatMessage);
                 }
             });
 

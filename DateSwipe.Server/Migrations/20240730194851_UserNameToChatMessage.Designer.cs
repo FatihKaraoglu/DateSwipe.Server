@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DateSwipe.Server.Migrations
 {
     [DbContext(typeof(DatingDbContext))]
-    [Migration("20240729053256_Init")]
-    partial class Init
+    [Migration("20240730194851_UserNameToChatMessage")]
+    partial class UserNameToChatMessage
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,6 +94,10 @@ namespace DateSwipe.Server.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
