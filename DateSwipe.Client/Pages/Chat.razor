@@ -1,35 +1,68 @@
 ﻿@page "/chat"
 @using DateSwipe.Client.Services.ChatService
+@using DateSwipe.Client.Services.DateDecisionService
 @using DateSwipe.Client.Services.ProfileService
 @inject ChatService ChatService
 @inject IProfileService ProfileService
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDateDecisionService DateDecisionService
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="mb-8" Fixed="false" Gutters="true">
+<MudContainer MaxWidth="MaxWidth.Small" Class="mb-12" Fixed="false" Gutters="true" Style="padding-bottom: 92px">
     <MudText Typo="Typo.h5">Chat</MudText>
     <div class="d-flex flex-column">
         @foreach (var message in Messages)
         {
-            <div class="message-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
-                <div class="flex-row message-box-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
-                    <MudAvatar Class="mb-2 mt-2 mr-2" Size="Size.Medium">
-                        <MudImage Src="@GetProfilePicture(message.UserName)" />
-                    </MudAvatar>
-                    <div class="message-content">
-                        <MudText Class="message-text">
-                            @message.Message
-                        </MudText>
-                        <MudText Style="font-size: 10px; text-align: right;" Typo="Typo.subtitle2">@message.Timestamp </MudText>
+            if(message.Type == MessageType.User)
+            {
+                <div class="message-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
+                    <div class="flex-row message-box-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
+                        <MudAvatar Class="mb-2 mt-2 mr-2" Size="Size.Medium">
+                            <MudImage Src="@GetProfilePicture(message.UserName)" />
+                        </MudAvatar>
+                        <div class="message-content">
+                            <MudText Class="message-text">
+                                @message.Message
+                            </MudText>
+                            <MudText Style="font-size: 10px; text-align: right;" Typo="Typo.subtitle2">@message.Timestamp.ToString("dd.MM.yyyy hh:mm") </MudText>
+                        </div>
                     </div>
                 </div>
-            </div>
+            } else if(message.Type == MessageType.Match)
+            {   
+                <MudCard Class="profile-card-container">
+                    <div class="profile-card-image-container">
+                        <MudCardMedia Image="@message.DateIdea.ImageUrl" Class="profile-card-image" />
+                    </div>
+                    <MudCardContent Class="profile-card-content">
+                        <div class="d-flex justify-content-center flex-row">
+                            @foreach (var category in message.DateIdea.Categories)
+                            {
+                                <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
+                            }
+                        </div>
+                        <MudText Typo="Typo.h6">@message.DateIdea.Title</MudText>
+                        <MudText>@message.DateIdea.Description</MudText>
+                    </MudCardContent>
+                </MudCard>
+            } else
+            {
+                
+            }
+
         }
     </div>
 
-    <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Class="mb-12" >
-    </MudTextField>
+    <MudContainer MaxWidth="MaxWidth.Small" Style="position: fixed; bottom: 32px">
+        <MudPaper Class="rounded-2">
+            <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Class="mb-12 p-3">
+            </MudTextField>
+        </MudPaper>
+       
+    </MudContainer>
+
 </MudContainer>
+
 
 @code {
     private List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
@@ -52,14 +85,19 @@
             await ChatService.StartAsync();
 
             // Load existing messages
-            var messagesResponse = await ChatService.GetChatMessagesAsync();
-            foreach (var msg in messagesResponse)
-            {
-                AddMessageToChat(msg);
-            }
+            AddMessages();
             StateHasChanged();
-        }
 
+        }
+    }
+
+    private async Task AddMessages()
+    {
+        var messagesResponse = await ChatService.GetChatMessagesAsync();
+        foreach (var msg in messagesResponse)
+        {
+            AddMessageToChat(msg);
+        }
     }
 
     private string GetProfilePicture(string username)

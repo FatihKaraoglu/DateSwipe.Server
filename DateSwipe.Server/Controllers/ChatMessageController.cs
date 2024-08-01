@@ -99,6 +99,7 @@ namespace DateSwipe.Server.Controllers
         {
             var userId = _authService.GetUserId();
             var user = await _context.Users.FindAsync(userId);
+            List<ChatMessageDTO> chatMessages = new List<ChatMessageDTO>();
 
             if (user == null)
             {
@@ -110,7 +111,69 @@ namespace DateSwipe.Server.Controllers
                 .OrderBy(m => m.Timestamp)
                 .ToListAsync();
 
-            return Ok(messages);
+            // Find the partner user in the couple
+            var partner = await _context.Users
+                .Where(u => u.CoupleId == user.CoupleId && u.Id != user.Id)
+                .FirstOrDefaultAsync();
+
+            if (partner == null)
+            {
+                return BadRequest();
+            }
+                var likedDateIdeas = await _context.DateIdeas
+                    .Where(di => _context.UserSwipes.Any(us => us.UserId == user.Id && us.Liked && us.DateIdeaId == di.Id)
+                                && _context.UserSwipes.Any(us => us.UserId == partner.Id && us.Liked && us.DateIdeaId == di.Id))
+                    .Select(di => new
+                    {
+                        di.Id,
+                        di.Title,
+                        di.Description,
+                        di.DateIdeaCategories,
+                        di.ImageUrl,
+                        MatchTimestamp = _context.UserSwipes
+                            .Where(us => us.DateIdeaId == di.Id && us.Liked &&
+                                         (us.UserId == user.Id || us.UserId == partner.Id))
+                            .Max(us => us.TimeStamp) 
+                    })
+                    .ToListAsync();
+
+            
+
+            foreach(var message in messages)
+            {
+                ChatMessageDTO chatMessageDTO = new ChatMessageDTO
+                {
+                    CoupleId = message.CoupleId,
+                    DateIdea = null,
+                    DateProposal = null,
+                    Type = MessageType.User,
+                    TimeStamp = message.Timestamp,
+                    Message = message.Message,
+                    UserId = message.UserId,
+                };
+                chatMessages.Add(chatMessageDTO);
+            }
+
+            foreach (var dateIdea in likedDateIdeas)
+            {
+                ChatMessageDTO chatMessageDTO = new ChatMessageDTO
+                {
+                    CoupleId = (int)user.CoupleId,
+                    DateIdea = new DateIdeaDTO
+                    {
+                        Id = dateIdea.Id,
+                        Description = dateIdea.Description,
+                        Categories = new List<CategoryDto>
+                        
+                    }
+
+                }
+            }
+
+
+
+
+
         }
     }
 }

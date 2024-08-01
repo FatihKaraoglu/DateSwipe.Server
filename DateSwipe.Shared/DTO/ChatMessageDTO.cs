@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DateSwipe.Shared
+namespace DateSwipe.Shared.DTO
 {
-    public class UserSwipe
+    public class ChatMessageDTO
     {
-        public int Id { get; set; }
-        public int DateIdeaId { get; set; }
-        public bool Liked { get; set; }
+        public string Message { get; set; }
         public int UserId { get; set; }
         public int CoupleId { get; set; }
-        public User User { get; set; }
+        public MessageType Type { get; set; }
+        public DateIdeaDTO? DateIdea{ get; set; }
+        public DateProposalDTO? DateProposal { get; set; }
         public DateTime TimeStamp { get; set; }
     }
-
 }

@@ -153,7 +153,8 @@ namespace DateSwipe.Server.Services.DateIdeaService
                     UserId = userId,
                     DateIdeaId = dateId,
                     CoupleId = coupleId.Value,
-                    Liked = liked
+                    Liked = liked,
+                    TimeStamp = DateTime.Now,
                 };
 
                 _context.UserSwipes.Add(userSwipe);

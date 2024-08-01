@@ -1,0 +1,22 @@
+﻿@page "/calendar"
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudText>
+        Calendar
+    </MudText>
+    <MudCalendar Items="@CalendarItems">
+
+    </MudCalendar>
+</MudContainer>
+
+@code {
+    public List<CalendarItem> CalendarItems { get; set; } = new List<CalendarItem>()
+    {
+        new CalendarItem
+        {
+            Start = DateTime.Now,
+            End = DateTime.Now.AddHours(2),
+            Text = "Bowling"
+
+        }
+    };
+}
