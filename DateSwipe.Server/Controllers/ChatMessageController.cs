@@ -95,7 +95,7 @@ namespace DateSwipe.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMessages()
+        public async Task<ServiceResponse<List<ChatMessageDTO>>> GetMessages()
         {
             var userId = _authService.GetUserId();
             var user = await _context.Users.FindAsync(userId);
@@ -103,7 +103,12 @@ namespace DateSwipe.Server.Controllers
 
             if (user == null)
             {
-                return BadRequest("User not found");
+                return new ServiceResponse<List<ChatMessageDTO>>
+                {
+                    Data = new List<ChatMessageDTO>(),
+                    Message = "Couldnt retrieve User-Object!",
+                    Success = false
+                };
             }
 
             var messages = await _context.ChatMessages
@@ -118,7 +123,12 @@ namespace DateSwipe.Server.Controllers
 
             if (partner == null)
             {
-                return BadRequest();
+                return new ServiceResponse<List<ChatMessageDTO>>
+                {
+                    Data = new List<ChatMessageDTO>(),
+                    Message = "Couldnt retrieve Partner-Object!",
+                    Success = false
+                };
             }
                 var likedDateIdeas = await _context.DateIdeas
                     .Where(di => _context.UserSwipes.Any(us => us.UserId == user.Id && us.Liked && us.DateIdeaId == di.Id)
@@ -156,6 +166,7 @@ namespace DateSwipe.Server.Controllers
 
             foreach (var dateIdea in likedDateIdeas)
             {
+                // Initialize a new ChatMessageDTO
                 ChatMessageDTO chatMessageDTO = new ChatMessageDTO
                 {
                     CoupleId = (int)user.CoupleId,
@@ -163,17 +174,36 @@ namespace DateSwipe.Server.Controllers
                     {
                         Id = dateIdea.Id,
                         Description = dateIdea.Description,
-                        Categories = new List<CategoryDto>
-                        
+                        ImageUrl = dateIdea.ImageUrl,
+                        Title = dateIdea.Title
                     }
+                };
 
-                }
+                // Assign categories with potential null values
+                chatMessageDTO.DateIdea.Categories = dateIdea.DateIdeaCategories
+                    .Select(dic => new CategoryDto
+                    {
+                        // Set Id and Name to null if dic.Category is null
+                        Id = dic.Category?.Id, // Will be null if dic.Category is null
+                        Name = dic.Category?.Name // Will be null if dic.Category is null
+                    })
+                    .ToList();
+
+                // Add the constructed chat message DTO to the list
+                chatMessages.Add(chatMessageDTO);
             }
 
 
 
+            var orderedChatMessageDTOs = new ServiceResponse<List<ChatMessageDTO>>()
+            {
+                Data = chatMessages.OrderBy(d => d.TimeStamp).ToList(),
+                Message = "",
+                Success = true
 
+            };
 
+            return orderedChatMessageDTOs;
         }
     }
 }

@@ -90,7 +90,8 @@ namespace DateSwipe.Server.Services.MatchService
                 UserId = userId,
                 DateIdeaId = dateId,
                 Liked = liked,
-                CoupleId = coupleId.Value
+                CoupleId = coupleId.Value,
+                TimeStamp = DateTime.Now,
             };
             _context.UserSwipes.Add(swipe);
             await _context.SaveChangesAsync();
