@@ -4,7 +4,9 @@ using DateSwipe.Server.PushNotificationService;
 using DateSwipe.Server.Services;
 using DateSwipe.Server.Services.AuthService;
 using DateSwipe.Server.Services.DateIdeaService;
+using DateSwipe.Server.Services.DateProposalService;
 using DateSwipe.Server.Services.MatchService;
+using DateSwipe.Server.Services.PlannedDateService;
 using DateSwipe.Server.Services.ProfileService;
 using DateSwipe.Server.Services.UserPreferenceService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,16 +17,6 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-//// Add Kestrel configuration to use the specified certificate
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.ConfigureHttpsDefaults(httpsOptions =>
-//    {
-//        httpsOptions.ServerCertificate = new X509Certificate2("C:\\Windows\\System32\\devcert.pfx", "Zombeyfan1!");
-//    });
-//});
 
 builder.Services.AddCors(options =>
 {
@@ -63,6 +55,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 builder.Services.AddScoped<IUserPreferenceService, UserPreferenceService>();
+builder.Services.AddScoped<IDateProposalService, DateProposalService>();
+builder.Services.AddScoped<IPlannedDateService, PlannedDateService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

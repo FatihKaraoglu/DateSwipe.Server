@@ -10,6 +10,7 @@ namespace DateSwipe.Shared.DTO
     {
         public string Message { get; set; }
         public int UserId { get; set; }
+        public string UserName { get; set; }
         public int CoupleId { get; set; }
         public MessageType Type { get; set; }
         public DateIdeaDTO? DateIdea{ get; set; }

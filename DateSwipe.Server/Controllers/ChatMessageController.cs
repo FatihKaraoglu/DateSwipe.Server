@@ -147,7 +147,11 @@ namespace DateSwipe.Server.Controllers
                     })
                     .ToListAsync();
 
-            
+            var dateProposals = await _context.DateProposals.
+                Include(dp => dp.DateIdea).
+                ThenInclude(dc => dc.DateIdeaCategories).
+                Where(di => di.CoupleId == user.CoupleId).ToListAsync();
+
 
             foreach(var message in messages)
             {
@@ -160,7 +164,62 @@ namespace DateSwipe.Server.Controllers
                     TimeStamp = message.Timestamp,
                     Message = message.Message,
                     UserId = message.UserId,
+                    UserName = message.UserName
+                    
+                   
                 };
+                chatMessages.Add(chatMessageDTO);
+            }
+
+            foreach(var dateProposal in dateProposals)
+            {
+                ChatMessageDTO chatMessageDTO = new ChatMessageDTO
+                {
+                    CoupleId = dateProposal.CoupleId,
+                    DateProposal = new DateProposalDTO
+                    {
+                        Accept = dateProposal.Accept,
+                        DateIdea = new DateIdeaDTO
+                        {
+                            Description = dateProposal.DateIdea.Description,
+                            Id = dateProposal.DateIdeaId,
+                            ImageUrl = dateProposal.DateIdea.ImageUrl,
+                            Title = dateProposal.DateIdea.Title,
+                            
+                        },
+                        DateProposalIssuer = dateProposal.DateProposalIssuer,
+                        Canceled = dateProposal.Canceled,
+                        CoupleId = dateProposal.CoupleId,
+                        FromTime = dateProposal.FromTime,
+                        TimeStamp = dateProposal.TimeStamp,
+                        Id = dateProposal.Id,
+                        ToTime = dateProposal.FromTime,
+                        
+                    },
+                    Type = MessageType.DateProposal,
+                    Message = null,
+                    TimeStamp = dateProposal.TimeStamp,
+                    UserId = dateProposal.DateProposalIssuer,
+                    UserName = user.Name
+
+                };
+
+                chatMessageDTO.DateProposal.DateIdea.Categories = dateProposal.DateIdea.DateIdeaCategories
+                .Select(dic => {
+                    if (dic.Category == null)
+                    {
+                        // Log warning or error here
+                        Console.WriteLine($"Warning: Null category found for DateIdeaId: {dateProposal.DateIdea.Id}");
+                    }
+
+                    return new CategoryDto
+                    {
+                        Id = dic.Category?.Id ?? 0,
+                        Name = dic.Category?.Name ?? "Unknown"
+                    };
+                })
+                .ToList();
+
                 chatMessages.Add(chatMessageDTO);
             }
 
@@ -176,20 +235,32 @@ namespace DateSwipe.Server.Controllers
                         Description = dateIdea.Description,
                         ImageUrl = dateIdea.ImageUrl,
                         Title = dateIdea.Title
-                    }
+                        
+                    },
+                    TimeStamp = dateIdea.MatchTimestamp,
+                    UserName = user.Name,
+                    UserId = user.Id,
+                    Type = MessageType.Match
+                   
                 };
 
-                // Assign categories with potential null values
                 chatMessageDTO.DateIdea.Categories = dateIdea.DateIdeaCategories
-                    .Select(dic => new CategoryDto
+                .Select(dic => {
+                    if (dic.Category == null)
                     {
-                        // Set Id and Name to null if dic.Category is null
-                        Id = dic.Category?.Id, // Will be null if dic.Category is null
-                        Name = dic.Category?.Name // Will be null if dic.Category is null
-                    })
-                    .ToList();
+                        // Log warning or error here
+                        Console.WriteLine($"Warning: Null category found for DateIdeaId: {dateIdea.Id}");
+                    }
 
-                // Add the constructed chat message DTO to the list
+                    return new CategoryDto
+                    {
+                        Id = dic.Category?.Id ?? 0,
+                        Name = dic.Category?.Name ?? "Unknown"
+                    };
+                })
+                .ToList();
+
+
                 chatMessages.Add(chatMessageDTO);
             }
 

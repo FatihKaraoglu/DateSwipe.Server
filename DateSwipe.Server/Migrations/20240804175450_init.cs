@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DateSwipe.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class UserNameToChatMessage : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +36,7 @@ namespace DateSwipe.Server.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
                     Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -119,6 +120,32 @@ namespace DateSwipe.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DateProposals",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CoupleId = table.Column<int>(type: "int", nullable: false),
+                    DateIdeaId = table.Column<int>(type: "int", nullable: false),
+                    Accept = table.Column<bool>(type: "bit", nullable: true),
+                    Canceled = table.Column<bool>(type: "bit", nullable: false),
+                    DateProposalIssuer = table.Column<int>(type: "int", nullable: false),
+                    FromTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DateProposals", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DateProposals_DateIdeas_DateIdeaId",
+                        column: x => x.DateIdeaId,
+                        principalTable: "DateIdeas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PushSubscriptions",
                 columns: table => new
                 {
@@ -174,7 +201,8 @@ namespace DateSwipe.Server.Migrations
                     DateIdeaId = table.Column<int>(type: "int", nullable: false),
                     Liked = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    CoupleId = table.Column<int>(type: "int", nullable: false)
+                    CoupleId = table.Column<int>(type: "int", nullable: false),
+                    TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -185,6 +213,35 @@ namespace DateSwipe.Server.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlannedDates",
+                columns: table => new
+                {
+                    PlannedDateId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CoupleId = table.Column<int>(type: "int", nullable: false),
+                    From = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    To = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateIdeaId = table.Column<int>(type: "int", nullable: false),
+                    DateProposalId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlannedDates", x => x.PlannedDateId);
+                    table.ForeignKey(
+                        name: "FK_PlannedDates_DateIdeas_DateIdeaId",
+                        column: x => x.DateIdeaId,
+                        principalTable: "DateIdeas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PlannedDates_DateProposals_DateProposalId",
+                        column: x => x.DateProposalId,
+                        principalTable: "DateProposals",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -288,6 +345,21 @@ namespace DateSwipe.Server.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DateProposals_DateIdeaId",
+                table: "DateProposals",
+                column: "DateIdeaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlannedDates_DateIdeaId",
+                table: "PlannedDates",
+                column: "DateIdeaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlannedDates_DateProposalId",
+                table: "PlannedDates",
+                column: "DateProposalId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PushSubscriptions_UserId",
                 table: "PushSubscriptions",
                 column: "UserId");
@@ -316,6 +388,9 @@ namespace DateSwipe.Server.Migrations
                 name: "Invitations");
 
             migrationBuilder.DropTable(
+                name: "PlannedDates");
+
+            migrationBuilder.DropTable(
                 name: "PushSubscriptions");
 
             migrationBuilder.DropTable(
@@ -325,13 +400,16 @@ namespace DateSwipe.Server.Migrations
                 name: "UserSwipes");
 
             migrationBuilder.DropTable(
-                name: "DateIdeas");
+                name: "DateProposals");
 
             migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "DateIdeas");
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DateSwipe.Server.Migrations
 {
     [DbContext(typeof(DatingDbContext))]
-    [Migration("20240730194851_UserNameToChatMessage")]
-    partial class UserNameToChatMessage
+    [Migration("20240804221456_Birthday")]
+    partial class Birthday
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,6 +91,9 @@ namespace DateSwipe.Server.Migrations
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -584,6 +587,45 @@ namespace DateSwipe.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DateSwipe.Shared.DateProposal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Accept")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Canceled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("CoupleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DateIdeaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DateProposalIssuer")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FromTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ToTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DateIdeaId");
+
+                    b.ToTable("DateProposals");
+                });
+
             modelBuilder.Entity("DateSwipe.Shared.Invitation", b =>
                 {
                     b.Property<int>("Id")
@@ -605,6 +647,38 @@ namespace DateSwipe.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Invitations");
+                });
+
+            modelBuilder.Entity("DateSwipe.Shared.PlannedDate", b =>
+                {
+                    b.Property<int>("PlannedDateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlannedDateId"));
+
+                    b.Property<int>("CoupleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DateIdeaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DateProposalId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("From")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("To")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PlannedDateId");
+
+                    b.HasIndex("DateIdeaId");
+
+                    b.HasIndex("DateProposalId");
+
+                    b.ToTable("PlannedDates");
                 });
 
             modelBuilder.Entity("DateSwipe.Shared.PushSubscription", b =>
@@ -644,6 +718,9 @@ namespace DateSwipe.Server.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("CoupleId")
                         .HasColumnType("int");
@@ -717,6 +794,9 @@ namespace DateSwipe.Server.Migrations
                     b.Property<bool>("Liked")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -732,7 +812,7 @@ namespace DateSwipe.Server.Migrations
                     b.HasOne("DateSwipe.Shared.Category", "Category")
                         .WithMany("DateIdeaCategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DateSwipe.Shared.DateIdea", "DateIdea")
@@ -744,6 +824,36 @@ namespace DateSwipe.Server.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("DateIdea");
+                });
+
+            modelBuilder.Entity("DateSwipe.Shared.DateProposal", b =>
+                {
+                    b.HasOne("DateSwipe.Shared.DateIdea", "DateIdea")
+                        .WithMany()
+                        .HasForeignKey("DateIdeaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DateIdea");
+                });
+
+            modelBuilder.Entity("DateSwipe.Shared.PlannedDate", b =>
+                {
+                    b.HasOne("DateSwipe.Shared.DateIdea", "DateIdea")
+                        .WithMany()
+                        .HasForeignKey("DateIdeaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DateSwipe.Shared.DateProposal", "DateProposal")
+                        .WithMany()
+                        .HasForeignKey("DateProposalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DateIdea");
+
+                    b.Navigation("DateProposal");
                 });
 
             modelBuilder.Entity("DateSwipe.Shared.PushSubscription", b =>

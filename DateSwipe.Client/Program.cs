@@ -15,6 +15,8 @@ using DateSwipe.Client.Services.LoadingService;
 using DateSwipe.Client.Services.ChatService;
 using DateSwipe.Client.Services.PushNotificationService;
 using DateSwipe.Client.Services.UserPreferenceService;
+using DateSwipe.Client.Services.DateProposalService;
+using DateSwipe.Client.Services.PlannedDateService;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -30,8 +32,8 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddSingleton<LoadingService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 builder.Services.AddScoped<IUserPreferenceService, UserPreferenceService>();
-
-
+builder.Services.AddScoped<IDateProposalService, DateProposalService>();
+builder.Services.AddScoped<IPlannedDateService, PlannedDateService>();
 
 builder.Services.AddTransient<AuthMessageHandler>();
 

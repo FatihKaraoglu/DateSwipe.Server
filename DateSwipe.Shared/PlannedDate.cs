@@ -12,8 +12,10 @@ namespace DateSwipe.Shared
         public int CoupleId { get; set; }
         public DateTime From { get; set; }
         public DateTime To { get; set; }
-        public bool WholeDay { get; set; }
         public int DateIdeaId { get; set; }
         public DateIdea DateIdea { get; set; }
+        public int DateProposalId { get; set; }
+        public DateProposal DateProposal { get; set; }
     }
 }
+

@@ -15,6 +15,8 @@ namespace DateSwipe.Server.Data.DataContext
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<PushSubscription> PushSubscriptions { get; set; }
         public DbSet<UserCategoryPreference> UserCategoryPreferences { get; set; }
+        public DbSet<DateProposal> DateProposals { get; set; }
+        public DbSet<PlannedDate> PlannedDates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +26,11 @@ namespace DateSwipe.Server.Data.DataContext
                 .HasOne(us => us.User)
                 .WithMany(u => u.UserSwipes)
                 .HasForeignKey(us => us.UserId);
+
+            modelBuilder.Entity<Category>()
+             .HasMany(c => c.DateIdeaCategories)
+             .WithOne(dic => dic.Category)
+             .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.UserSwipes)
@@ -60,6 +67,40 @@ namespace DateSwipe.Server.Data.DataContext
                 .HasOne(ucp => ucp.Category)
                 .WithMany(c => c.UserPreferences)
                 .HasForeignKey(ucp => ucp.CategoryId);
+
+            modelBuilder.Entity<DateProposal>()
+                .HasKey(dp => dp.Id);
+
+            modelBuilder.Entity<DateProposal>()
+                .HasOne(dp => dp.DateIdea)
+                .WithMany()
+                .HasForeignKey(dp => dp.DateIdeaId);
+
+            modelBuilder.Entity<DateProposal>()
+                .Property(dp => dp.FromTime)
+                .IsRequired();
+
+            modelBuilder.Entity<DateProposal>()
+                .Property(dp => dp.ToTime)
+                .IsRequired();
+
+            modelBuilder.Entity<PlannedDate>()
+                 .HasOne(pd => pd.DateProposal)
+                 .WithMany() 
+                 .HasForeignKey(pd => pd.DateProposalId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PlannedDate>()
+                .HasOne(pd => pd.DateIdea)
+                .WithMany()
+                .HasForeignKey(pd => pd.DateIdeaId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<DateProposal>()
+                .HasOne(dp => dp.DateIdea)
+                .WithMany() 
+                .HasForeignKey(dp => dp.DateIdeaId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
 
             modelBuilder.Entity<DateIdea>().HasData(

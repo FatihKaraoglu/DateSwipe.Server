@@ -316,7 +316,7 @@ a, .btn-link {
     background-color: #f1f1f1;
     border-radius: 10px;
     padding: 10px;
-    max-width: 450px;
+    max-width: 250px;
 }
 
 .message-box-container.user .message-text {

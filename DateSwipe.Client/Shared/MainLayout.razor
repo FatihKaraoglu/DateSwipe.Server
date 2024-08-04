@@ -10,8 +10,9 @@
 @inject IDateDecisionService DateDecisionService
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode=_darkMode />
-<MudDialogProvider />
+<MudDialogProvider  MaxWidth="MaxWidth.Small" Position="DialogPosition.Center" />
 <MudSnackbarProvider />
+<MudPopoverProvider></MudPopoverProvider>
 <LoadingOverlay />
 <MudLayout Class="d-flex">
     <MudAppBar ToolBarClass="w-100 relative justify-content-between" Class="d-flex justify-content-between align-items-center " Elevation="0">

@@ -1,0 +1,80 @@
+﻿@using DateSwipe.Client.Services.DateProposalService
+@inject ISnackbar Snackbar
+@inject IDateProposalService DateProposalService
+<MudDialog Class="h-75"> 
+    <TitleContent>
+        <MudText Color="Color.Primary">
+            Date Proposal
+        </MudText>
+       
+    </TitleContent>
+    <DialogContent>
+        <MudForm Class="mb-4">
+            <div class="mb-2">
+                <MudText Align="Align.Left">
+                    Choose a Day:
+                </MudText>
+                <MudDatePicker @bind-Date="_selectedDate" PickerVariant="PickerVariant.Dialog" />
+            </div>
+            <div class="d-flex flex-row gap-2">
+                <div>
+                    <MudText Align="Align.Left">From</MudText>
+                    <MudTimePicker @bind-Time="_fromTime" PickerVariant="PickerVariant.Dialog" />
+                </div>
+                <div>
+                    <MudText Align="Align.Left">To</MudText>
+                    <MudTimePicker @bind-Time="_toTime" PickerVariant="PickerVariant.Dialog" />
+                </div>
+            </div>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="@(() => CreateDateProposal())">
+            Send Date Proposal
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int DateIdeaId { get; set; }
+
+    private DateTime? _selectedDate;
+    private TimeSpan? _fromTime;
+    private TimeSpan? _toTime;
+
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task CreateDateProposal()
+    {
+        if (_selectedDate == null || _fromTime == null || _toTime == null)
+        {
+            Snackbar.Add("Please select a date and time.", Severity.Error);
+            return;
+        }
+
+        // Combine the selected date with the From and To times
+        var fromDateTime = _selectedDate.Value.Add(_fromTime.Value);
+        var toDateTime = _selectedDate.Value.Add(_toTime.Value);
+
+        var response = await DateProposalService.CreateDateProposalAsync(
+            DateIdeaId, // Replace with actual date idea ID
+            fromDateTime,
+            toDateTime
+        );
+
+        if (response.Success)
+        {
+            Snackbar.Add("Date proposal sent successfully!", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add($"Failed to send date proposal: {response.Message}", Severity.Error);
+        }
+    }
+}

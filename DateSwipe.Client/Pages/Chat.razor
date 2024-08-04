@@ -1,21 +1,26 @@
 ﻿@page "/chat"
 @using DateSwipe.Client.Services.ChatService
 @using DateSwipe.Client.Services.DateDecisionService
+@using DateSwipe.Client.Services.DateProposalService
 @using DateSwipe.Client.Services.ProfileService
+@using DateSwipe.Client.Shared
 @inject ChatService ChatService
 @inject IProfileService ProfileService
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDateDecisionService DateDecisionService
+@inject IDateProposalService DateProposalService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
-@* <MudContainer MaxWidth="MaxWidth.Small" Class="mb-12" Fixed="false" Gutters="true" Style="padding-bottom: 92px">
+<MudContainer MaxWidth="MaxWidth.Small" Class="mb-12" Fixed="false" Gutters="true" Style="padding-bottom: 92px">
     <MudText Typo="Typo.h5">Chat</MudText>
-    <div class="d-flex flex-column">
+    <div class="d-flex flex-column w-100">
         @foreach (var message in Messages)
         {
             if(message.Type == MessageType.User)
             {
-                <div class="message-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
+                <div class="message-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" ) mr-2">
                     <div class="flex-row message-box-container @(message.UserName == ProfileService.User.UserName ? "user" : "partner" )">
                         <MudAvatar Class="mb-2 mt-2 mr-2" Size="Size.Medium">
                             <MudImage Src="@GetProfilePicture(message.UserName)" />
@@ -24,54 +29,142 @@
                             <MudText Class="message-text">
                                 @message.Message
                             </MudText>
-                            <MudText Style="font-size: 10px; text-align: right;" Typo="Typo.subtitle2">@message.Timestamp.ToString("dd.MM.yyyy hh:mm") </MudText>
+                            
                         </div>
                     </div>
                 </div>
             } else if(message.Type == MessageType.Match)
             {   
-                <MudCard Class="profile-card-container">
-                    <div class="profile-card-image-container">
-                        <MudCardMedia Image="@message.DateIdea.ImageUrl" Class="profile-card-image" />
-                    </div>
-                    <MudCardContent Class="profile-card-content">
-                        <div class="d-flex justify-content-center flex-row">
-                            @foreach (var category in message.DateIdea.Categories)
-                            {
-                                <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
-                            }
+                <div class="d-flex flex-column align-items-center mb-10">
+
+                    <MudText Color="Color.Primary">
+                        You have got a Match!
+                    </MudText>
+                    <MudText Typo="Typo.subtitle2" >
+                        Send your lover a Time and Place for the Date by creating a Date Proposal!
+                    </MudText>
+                    <MudCard Class="profile-card-container mb-2">
+                        <div class="profile-card-image-container">
+                            <MudCardMedia Image="@message.DateIdea.ImageUrl" Class="profile-card-image" />
                         </div>
-                        <MudText Typo="Typo.h6">@message.DateIdea.Title</MudText>
-                        <MudText>@message.DateIdea.Description</MudText>
-                    </MudCardContent>
-                </MudCard>
-            } else
-            {
+                        <MudCardContent Class="profile-card-content">
+                            <div class="d-flex justify-content-center flex-row">
+                                @foreach (var category in message.DateIdea.Categories)
+                                {
+                                    <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
+                                }
+                            </div>
+                            <MudText Typo="Typo.h6">@message.DateIdea.Title</MudText>
+                            <MudText>@message.DateIdea.Description</MudText>
+                        <MudCardActions Class="d-flex justify-content-center ">
+                            <MudButton OnClick="@(() => OpenDateProposalDialog(message.DateIdea.Id))">
+                                Create a Date Proposal
+                            </MudButton>
+                           @*  <MudExpansionPanels Elevation="0" Class="w-100">
+                                <MudExpansionPanel Text="Propose a Date" Gutters="false">
+                                        
+                                </MudExpansionPanel> 
+                            </MudExpansionPanels>*@
+                            
+                        </MudCardActions>
+                        </MudCardContent>
+                    </MudCard>
+                    <MudText Style="font-size: 10px;" Typo="Typo.subtitle2">@message.TimeStamp.ToString("dd.MM.yyyy hh:mm") </MudText>
+                </div>
                 
+            } else if(message.Type == MessageType.DateProposal)
+            {
+                <div class="d-flex flex-column align-items-center mb-10">
+                    <MudText Color="Color.Primary">You have got a Date Proposal</MudText>
+                    <MudText Typo="Typo.subtitle2">
+                        You can accept or reject this Date-Proposal!
+                    </MudText>
+                    <MudCard Class="profile-card-container mb-2">
+                        <div class="profile-card-image-container">
+                            <MudCardMedia Image="@message.DateProposal.DateIdea.ImageUrl" Class="profile-card-image" />
+                        </div>
+                        <MudCardContent Class="profile-card-content">
+                            <div class="d-flex justify-content-center flex-row">
+                                @foreach (var category in message.DateProposal.DateIdea.Categories)
+                                {
+                                    <MudChip T="string" Color="Color.Primary">@category.Name</MudChip>
+                                }
+                            </div>
+                            <MudText Typo="Typo.h6">@message.DateProposal.DateIdea.Title</MudText>
+                            <MudText>@message.DateProposal.DateIdea.Description</MudText>
+                       
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex flex-column align-content-center">
+                            @if (message.DateProposal.Canceled)
+                            {
+                                <MudText>
+                                    This Date Proposal has been cancelled!
+                                </MudText>
+                            } else
+                            {
+                                if(message.DateProposal.Accept == null)
+                                {
+                                    <MudButtonGroup>
+                                        <MudButton Color="Color.Success" OnClick="@(() => AcceptProposal(message.DateProposal))">
+                                            Accept
+                                        </MudButton>
+                                        <MudButton Color="Color.Error" OnClick="@(() => RejectProposal(message.DateProposal))">
+                                            Reject
+                                        </MudButton>
+                                    </MudButtonGroup>
+                                } else if (message.DateProposal.Accept == true)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success">
+                                    </MudIcon>
+                                    <MudText Color="Color.Primary">
+                                        Great! You have accepted this Date Proposal!
+                                    </MudText>
+                                    <MudText>
+                                        The Date is planned for the @message.DateProposal.FromTime.Day at @message.DateProposal.FromTime.TimeOfDay - @message.DateProposal.ToTime.TimeOfDay
+                                    </MudText>
+                                } else
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Error">
+                                    </MudIcon>
+                                    <MudText Color="Color.Primary">
+                                        What a Pity! You have rejected this Date Proposal!
+                                    </MudText>
+                                    <MudText>
+                                        Keep swiping to find a new Date!
+                                    </MudText>
+                                }
+
+                            }
+
+                        </MudCardActions>
+                    </MudCard>
+                </div>
             }
 
         }
     </div>
 
-    <MudContainer MaxWidth="MaxWidth.Small" Style="position: fixed; bottom: 32px">
-        <MudPaper Class="rounded-2">
-            <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Class="mb-12 p-3">
-            </MudTextField>
-        </MudPaper>
-       
-    </MudContainer>
 
-</MudContainer> *@
+
+</MudContainer>
+<MudContainer MaxWidth="MaxWidth.Small" Style="position: fixed; bottom: 32px; padding: 0; left: 50%;
+        transform: translateX(-50%);">
+    <MudPaper Class="rounded-2">
+        <MudTextField @bind-Value="CurrentMessage" Placeholder="Type a message" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Class="mb-12 p-3">
+        </MudTextField>
+    </MudPaper>
+
+</MudContainer>
 
 
 @code {
-    private List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
+    private List<ChatMessageDTO> Messages { get; set; } = new List<ChatMessageDTO>();
     private string CurrentMessage { get; set; } = string.Empty;
     private string User { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine("Gettign AuthState from Index.razor");
+        Console.WriteLine("Getting AuthState from Index.razor");
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -82,10 +175,11 @@
             User = profile.Data?.UserName;
 
             ChatService.OnMessageReceived += HandleMessageReceived;
+            ChatService.OnDateProposalReceived += HandleDateProposalReceived;
             await ChatService.StartAsync();
 
             // Load existing messages
-            AddMessages();
+            await AddMessages();
             StateHasChanged();
 
         }
@@ -108,15 +202,27 @@
 
     }
 
-    private void AddMessageToChat(ChatMessage message)
+    private void AddMessageToChat(ChatMessageDTO message)
     {
         Messages.Add(message);
     }
 
-    private async Task HandleMessageReceived(ChatMessage chatMessage)
+    private async Task HandleMessageReceived(ChatMessageDTO chatMessage)
     {
         Messages.Add(chatMessage);
         StateHasChanged();
+    }
+
+    private async Task HandleDateProposalReceived(ChatMessageDTO chatMessage)
+    {
+        Console.WriteLine(chatMessage.UserName + " has sent you a DateProposal");
+        Messages.Add(chatMessage);
+        StateHasChanged();
+    }
+
+    private async Task HandleDateProposalResponseReceived(ChatMessageDTO chatMessage)
+    {
+
     }
 
     private async Task SendMessage()
@@ -131,6 +237,77 @@
     public void Dispose()
     {
         ChatService.OnMessageReceived -= HandleMessageReceived;
+        ChatService.OnDateProposalReceived -= HandleDateProposalReceived;
         ChatService.StopAsync();
     }
+
+    private async Task AcceptProposal(DateProposalDTO dateProposal)
+    {
+        var response = await DateProposalService.AcceptDateProposalAsync(dateProposal.Id);
+
+        if (!response.Success)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        } else
+        {
+            dateProposal.Accept = true;
+        }
+
+    }
+
+
+    private async Task RejectProposal(DateProposalDTO dateProposal)
+    {
+        var response = await DateProposalService.RejectDateProposalAsync(dateProposal.Id);
+
+        if (!response.Success)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        } else
+        {
+            dateProposal.Accept = false;
+        }
+
+    }
+
+    private async Task CreateDateProposal(int dateIdeaId, DateTime from, DateTime to, DateTime day)
+    {
+        var fromTime = new DateTime(
+            day.Year,
+            day.Month,
+            day.Day,
+            from.Hour,
+            from.Minute,
+            from.Second
+        );
+
+        var toTime = new DateTime(
+            day.Year,
+            day.Month,
+            day.Day,
+            to.Hour,
+            to.Minute,
+            to.Second
+        );
+        var response = await DateProposalService.CreateDateProposalAsync(dateIdeaId, fromTime, toTime);
+
+        if (response.Success)
+        {
+            Snackbar.Add("Date proposal created successfully!", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"Failed to create date proposal: {response.Message}", Severity.Error);
+        }
+    }
+
+    private async Task OpenDateProposalDialog(int dateIdeaId)
+    {
+        var parameter = new DialogParameters<DateProposalDialog>
+        {
+             { x => x.DateIdeaId, dateIdeaId },
+        };
+       await DialogService.ShowAsync<DateProposalDialog>("Date Proposal", parameter);
+    }
+
 }

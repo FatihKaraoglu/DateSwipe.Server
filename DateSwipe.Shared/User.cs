@@ -18,7 +18,7 @@ namespace DateSwipe.Shared
         public int? CoupleId { get; set; } // Couple identifier
         public string? ProfilePictureUrl { get; set; }
         public string Name { get; set; }
-
+        public DateTime Birthday { get; set; }
         public ICollection<PushSubscription> PushSubscriptions { get; set; }
         public ICollection<UserCategoryPreference> CategoryPreferences { get; set; }
         public List<UserSwipe> UserSwipes { get; set; }

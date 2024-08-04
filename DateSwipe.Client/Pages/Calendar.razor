@@ -1,22 +1,44 @@
 ﻿@page "/calendar"
-<MudContainer MaxWidth="MaxWidth.Small">
-    <MudText>
-        Calendar
-    </MudText>
-    <MudCalendar Items="@CalendarItems">
+@using DateSwipe.Client.Services.PlannedDateService
+@using DateSwipe.Shared
+@inject IPlannedDateService PlannedDateService
 
-    </MudCalendar>
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudText Typo="Typo.h5">Calendar</MudText>
+    <MudCalendar Items="@PlannedDates" />
 </MudContainer>
 
 @code {
-    public List<CalendarItem> CalendarItems { get; set; } = new List<CalendarItem>()
-    {
-        new CalendarItem
-        {
-            Start = DateTime.Now,
-            End = DateTime.Now.AddHours(2),
-            Text = "Bowling"
+    public List<CalendarItem> PlannedDates { get; set; } = new List<CalendarItem>(); // Initialize the list
 
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await PlannedDateService.GetPlannedDatesAsync();
+
+        if (response.Success && response.Data != null)
+        {
+            foreach (var plannedDate in response.Data)
+            {
+                // Ensure DateIdea is not null
+                if (plannedDate.DateIdea != null)
+                {
+                    var calendarItem = new CalendarItem
+                        {
+                            Start = plannedDate.From,
+                            End = plannedDate.To,
+                            Text = plannedDate.DateIdea.Title
+                        };
+
+                    PlannedDates.Add(calendarItem);
+                }
+            }
+
+            StateHasChanged();
         }
-    };
+        else
+        {
+            // Handle the case where there is an error or no data
+            Console.WriteLine($"Failed to load planned dates: {response.Message}");
+        }
+    }
 }

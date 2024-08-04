@@ -33,9 +33,29 @@
         </MudAvatar>
     </div>
 
-    <div>
-        <MudCalendar></MudCalendar>
+    <div class="mt-2">
+        <MudText Color="Color.Primary">
+            Couple Info
+        </MudText>
+        <div class="grid-container">
+            <div class="grid-item">
+                <MudDatePicker Label="Anniversary" DateFormat="dd.MM.yyyy" />
+            </div>
+            <div class="grid-item">
+                <MudDatePicker Label="First Date" DateFormat="dd.MM.yyyy" />
+            </div>
+        </div>
     </div>
+
+    <div class="mt-2">
+        <MudText>
+            Couple Statistic
+        </MudText>
+        <MudChart ChartType="ChartType.Donut" LegendPosition="Position.Bottom" Width="300px" Height="300px"
+                  InputData="@data" InputLabels="@labels" >
+        </MudChart>
+    </div>
+    
 
     <MudDrawer @bind-Open="@_open" Anchor="@Anchor.Bottom" Elevation="1" Variant="@DrawerVariant.Temporary" Height="90%">
         <MudDrawerHeader Class="d-flex flex-row justify-content-between">
@@ -65,10 +85,28 @@
     </MudDrawer>
 </MudContainer>
 
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; 
+        gap: 16px; 
+        align-items: start;
+    }
+
+    .grid-item {
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+    }
+</style>
+
 @code {
     public bool _open { get; set; }
     private ElementReference CopyTextField;
     private string invitationLink = "https://example.com/invite?code=youruniquecode"; // Example link
+
+    public string[] labels = { "Romantic", "Indoor", "Outdoor", "Relaxing", "Cultural", "Adventurous" };
+    public double[] data = { 25, 77, 28, 5, 6, 2 };
 
     protected override async Task OnInitializedAsync()
     {

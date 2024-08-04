@@ -11,6 +11,7 @@ using DateSwipe.Shared;
 using DateSwipe.Client.Services.AuthService;
 using System.Text.Json.Serialization;
 using DateSwipe.Client.Services.PushNotificationService;
+using DateSwipe.Shared.DTO;
 
 namespace DateSwipe.Client.Services.ChatService
 {
@@ -23,7 +24,9 @@ namespace DateSwipe.Client.Services.ChatService
         private bool _isConnected;
         private readonly IAuthService _authService;
 
-        public event Func<ChatMessage, Task> OnMessageReceived;
+        public event Func<ChatMessageDTO, Task> OnMessageReceived;
+        public event Func<ChatMessageDTO, Task> OnDateProposalReceived;
+        public event Func<ChatMessageDTO, Task> OnDateProposalResponseReceived;
 
         public ChatService(NavigationManager navigationManager, ILogger<ChatService> logger, HttpClient httpClient, IAuthService authService)
         {
@@ -51,11 +54,27 @@ namespace DateSwipe.Client.Services.ChatService
                 })
                 .Build();
 
-            _hubConnection.On<ChatMessage>("ReceiveMessage", async (chatMessage) =>
+            _hubConnection.On<ChatMessageDTO>("ReceiveMessage", async (chatMessage) =>
             {
                 if (OnMessageReceived != null)
                 {
                     await OnMessageReceived.Invoke(chatMessage);
+                }
+            });
+
+            _hubConnection.On<ChatMessageDTO>("ReceiveDateProposal", async (chatMessage) =>
+            {
+                if (OnDateProposalReceived != null)
+                {
+                    await OnDateProposalReceived.Invoke(chatMessage);
+                }
+            });
+
+            _hubConnection.On<ChatMessageDTO>("ReceiveDateProposalResponse", async (chatMessage) =>
+            {
+                if (OnDateProposalResponseReceived != null)
+                {
+                    await OnDateProposalResponseReceived.Invoke(chatMessage);
                 }
             });
 
@@ -98,7 +117,7 @@ namespace DateSwipe.Client.Services.ChatService
             }
         }
 
-        public async Task<List<ChatMessage>> GetChatMessagesAsync()
+        public async Task<List<ChatMessageDTO>> GetChatMessagesAsync()
         {
             try
             {
@@ -107,14 +126,19 @@ namespace DateSwipe.Client.Services.ChatService
                     ReferenceHandler = ReferenceHandler.Preserve,
                     PropertyNameCaseInsensitive = true // Optional: Based on your API's JSON naming conventions
                 };
-                var response = await _httpClient.GetFromJsonAsync<List<ChatMessage>>("api/chatMessages", options);
+                var response = await _httpClient.GetFromJsonAsync<ServiceResponse<List<ChatMessageDTO>>>("api/chatMessages", options);
 
-                return response;
+                if (!response.Success)
+                {
+                    throw new Exception("Could not retrieve Messages");
+                }
+
+                return response.Data;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Exception fetching chat messages: {ex.Message}");
-                return new List<ChatMessage>();
+                return new List<ChatMessageDTO>();
             }
         }
 
