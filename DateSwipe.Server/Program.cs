@@ -24,7 +24,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "https://localhost:7039",
-                "http://localhost:5097") // Replace with your actual IP address and port
+                "http://localhost:5097",
+                 "https://217.160.208.8",
+                "http://217.160.208.8") // Replace with your actual IP address and port
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Important for SignalR
