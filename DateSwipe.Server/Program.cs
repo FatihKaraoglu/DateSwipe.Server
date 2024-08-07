@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 
@@ -30,17 +31,22 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddDefaultPolicy(policy =>
-//    {
-//        policy.WithOrigins(
-//               "http://localhost:5000", "https://localhost:5001", "http://217.160.208.8:80", "http://217.160.208.8:443")
-//              .AllowAnyHeader()
-//              .AllowAnyMethod()
-//              .AllowCredentials(); // Important for SignalR
-//    });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(
+               "http://localhost:5000",
+               "http://217.160.208.8:80",
+               "https://217.160.208.8",
+               "http://coupleswipe.com",
+               "https://coupleswipe.com")  // Ensure you include both HTTP and HTTPS domains
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Important for SignalR
+    });
+});
+
 
 builder.Services.AddDbContext<DatingDbContext>(options =>
 {
