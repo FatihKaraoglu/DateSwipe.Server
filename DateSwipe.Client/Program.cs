@@ -49,7 +49,7 @@ builder.Services.AddScoped(sp =>
 
     return new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://217.160.208.8") // Updated to server IP
+        BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) // Updated to server IP
     };
 });
 
@@ -58,6 +58,6 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://217.160.208.8") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 await builder.Build().RunAsync();

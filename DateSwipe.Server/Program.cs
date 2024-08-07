@@ -10,6 +10,7 @@ using DateSwipe.Server.Services.PlannedDateService;
 using DateSwipe.Server.Services.ProfileService;
 using DateSwipe.Server.Services.UserPreferenceService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -18,20 +19,28 @@ using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(
-                "https://localhost:7039",
-                "http://localhost:5097",
-                 "https://217.160.208.8",
-                "http://217.160.208.8") // Replace with your actual IP address and port
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // Important for SignalR
-    });
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 });
+
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddDefaultPolicy(policy =>
+//    {
+//        policy.WithOrigins(
+//               "http://localhost:5000", "https://localhost:5001", "http://217.160.208.8:80", "http://217.160.208.8:443")
+//              .AllowAnyHeader()
+//              .AllowAnyMethod()
+//              .AllowCredentials(); // Important for SignalR
+//    });
+//});
 
 builder.Services.AddDbContext<DatingDbContext>(options =>
 {
@@ -129,6 +138,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -141,9 +151,11 @@ if (app.Environment.IsDevelopment())
         c.EnableValidator();
         c.DisplayRequestDuration();
     });
+    app.UseForwardedHeaders();
 }
 else
 {
+    app.UseForwardedHeaders();
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
