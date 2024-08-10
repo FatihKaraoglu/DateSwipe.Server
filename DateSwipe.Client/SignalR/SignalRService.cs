@@ -6,7 +6,7 @@
     using Microsoft.Extensions.Logging;
     using System;
     using System.Threading.Tasks;
-    public class SignalRService
+    public class SignalRService : ISignalRService
     {
         private readonly NavigationManager _navigationManager;
         private readonly ILogger<SignalRService> _logger;
@@ -84,7 +84,7 @@
             }
         }
 
-        private async Task HandleReconnection()
+        public async Task HandleReconnection()
         {
             _isConnected = false;
             if (_reconnectAttempts < 3)

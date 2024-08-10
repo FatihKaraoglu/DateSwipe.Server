@@ -1,5 +1,7 @@
-﻿@using DateSwipe.Client.Services.DateDecisionService
+﻿@using DateSwipe.Client.Services.ChatService
+@using DateSwipe.Client.Services.DateDecisionService
 @using DateSwipe.Client.Services.ProfileService
+@using DateSwipe.Client.SignalR
 @using Microsoft.AspNetCore.Authorization
 @inherits LayoutComponentBase
 @inject IProfileService ProfileService
@@ -8,6 +10,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthService AuthService
 @inject IDateDecisionService DateDecisionService
+@inject ISignalRService SignalRService
+@inject ChatService ChatService
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode=_darkMode />
 <MudDialogProvider  MaxWidth="MaxWidth.Small" Position="DialogPosition.Center" />
@@ -117,26 +121,6 @@
         _open = false;
     }
 
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     Console.WriteLine("rendering MainLayout");
-    //     if (_isFirstRender)
-    //     {
-    //         var response = await ProfileService.GetProfile();
-    //         if (response.Success)
-    //         {
-    //             _profilePicture = response.Data.ProfilePicture;
-    //             StateHasChanged(); // Trigger re-render to update the profile picture
-    //         }
-    //         else
-    //         {
-    //             Snackbar.Add(response.Message, Severity.Error);
-    //         }
-    //         _isFirstRender = false;
-    //     }
-
-    //     isLoading = false;
-    // }
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,6 +138,13 @@
                 Snackbar.Add(response.Message, Severity.Error);
             }
         }
-       
+
+    }
+
+    public async Task LogOut()
+    {
+        await ChatService.StopAsync();
+        await SignalRService.StopAsync();
+        await AuthService.Logout();
     }
 }

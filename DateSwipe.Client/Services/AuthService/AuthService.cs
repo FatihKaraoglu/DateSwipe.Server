@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using DateSwipe.Client.SignalR;
 using DateSwipe.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;

@@ -23,7 +23,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorage();
 
-builder.Services.AddScoped<SignalRService>();
+builder.Services.AddScoped<ISignalRService, SignalRService>();
 builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<IDateDecisionService, DateDecisionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -40,16 +40,16 @@ builder.Services.AddTransient<AuthMessageHandler>();
 
 builder.Services.AddScoped(sp =>
 {
-    var localStorage = sp.GetRequiredService<ILocalStorageService>();
-    var navigation = sp.GetRequiredService<NavigationManager>();
-    var handler = new AuthMessageHandler(localStorage, navigation)
-    {
-        InnerHandler = new HttpClientHandler()
-    };
+var localStorage = sp.GetRequiredService<ILocalStorageService>();
+var navigation = sp.GetRequiredService<NavigationManager>();
+var handler = new AuthMessageHandler(localStorage, navigation)
+{
+    InnerHandler = new HttpClientHandler()
+};
 
-    return new HttpClient(handler)
-    {
-        BaseAddress = new Uri("http://localhost:5000")  // Updated to server IP
+return new HttpClient(handler)
+{
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) // Updated to server IP
     };
 });
 
@@ -58,6 +58,6 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5000") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
 
 await builder.Build().RunAsync();
