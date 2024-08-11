@@ -49,7 +49,7 @@ var handler = new AuthMessageHandler(localStorage, navigation)
 
 return new HttpClient(handler)
 {
-    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) // Updated to server IP
+    BaseAddress = new Uri("https://couple-swipe-server-agavgvhza5e9cdem.westeurope-01.azurewebsites.net") // Updated to server IP
     };
 });
 
@@ -58,6 +58,6 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://couple-swipe-server-agavgvhza5e9cdem.westeurope-01.azurewebsites.net")});
 
 await builder.Build().RunAsync();

@@ -12,6 +12,7 @@
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
+      "launchUrl": "swagger",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5097",
       "environmentVariables": {
@@ -21,6 +22,7 @@
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
+      "launchUrl": "swagger",
       "launchBrowser": true,
       //"applicationUrl": "https://localhost:7039;http://localhost:5097",
       "environmentVariables": {
@@ -29,6 +31,7 @@
     },
     "IIS Express": {
       "commandName": "IISExpress",
+      "launchUrl": "swagger",
       "launchBrowser": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "environmentVariables": {

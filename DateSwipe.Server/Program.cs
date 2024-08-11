@@ -40,7 +40,9 @@ builder.Services.AddCors(options =>
                "http://217.160.208.8:80",
                "https://217.160.208.8",
                "http://coupleswipe.com",
-               "https://coupleswipe.com")  // Ensure you include both HTTP and HTTPS domains
+               "https://coupleswipe.com",
+               "https://localhost",
+               "https://couple-swipe-bccahchqfyc0bzb3.westeurope-01.azurewebsites.net")  
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Important for SignalR
@@ -143,12 +145,9 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseWebAssemblyDebugging();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -162,6 +161,14 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseForwardedHeaders();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "DateSwipe API v1");
+        c.DefaultModelsExpandDepth(-1); // Disable swagger schemas at the bottom
+        c.EnableValidator();
+        c.DisplayRequestDuration();
+    });
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
@@ -169,15 +176,16 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseCors();
+
 app.UseRouting();
 
 // Use CORS before Authentication and Authorization
-app.UseCors();
+
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseBlazorFrameworkFiles();
 app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToFile("index.html");
