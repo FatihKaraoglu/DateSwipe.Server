@@ -76,7 +76,6 @@ namespace DateSwipe.Server.Services.AuthService
             user.PasswordSalt = passwordSalt;
             user.Role = "Free";
             user.IsSubscribed = false;
-            user.Name = "user";
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

@@ -42,6 +42,7 @@ builder.Services.AddCors(options =>
                "http://coupleswipe.com",
                "https://coupleswipe.com",
                "https://localhost",
+               "https://localhost:7048",
                "https://couple-swipe-bccahchqfyc0bzb3.westeurope-01.azurewebsites.net")  
               .AllowAnyHeader()
               .AllowAnyMethod()

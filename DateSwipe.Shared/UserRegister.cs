@@ -15,5 +15,20 @@ namespace DateSwipe.Shared
         public string Password { get; set; } = string.Empty;
         [Compare("Password", ErrorMessage = "The passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime? Birthday { get; set; }
+
+        [Required, StringLength(50, MinimumLength = 1)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required, StringLength(50, MinimumLength = 1)]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required, StringLength(50)]
+        public string City { get; set; } = string.Empty;
+
+        [Required, StringLength(5)]
+        public string Address { get; set; } = string.Empty;
     }
 }

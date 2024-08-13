@@ -23,7 +23,14 @@ namespace DateSwipe.Server.Controllers
         {
             var response = await _authService.Register(new User
             {
-                Email = request.Email
+                Email = request.Email,
+                Address = request.Address,
+                //shouldnt be null cause its checked int the client
+                Birthday = (DateTime)request.Birthday,
+                Name = request.Name,
+                LastName = request.LastName,
+                City = request.City,
+                
             }, request.Password);
 
             if (!response.Success)
