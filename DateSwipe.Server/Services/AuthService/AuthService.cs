@@ -70,17 +70,24 @@ namespace DateSwipe.Server.Services.AuthService
         {
             if (await UserExists(user.Email))
                 return new ServiceResponse<int> { Success = false, Message = "User already exists." };
+            try
+            {
+                CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+                user.Role = "Free";
+                user.IsSubscribed = false;
 
-            CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            user.Role = "Free";
-            user.IsSubscribed = false;
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return new ServiceResponse<int> { Data = user.Id, Message = "Registration successful!" };
+                return new ServiceResponse<int> { Data = user.Id, Message = "Registration successful!" };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<int> {Success = false, Message = ex.Message};
+            }
+            
         }
 
         public async Task<bool> UserExists(string email)

@@ -19,7 +19,7 @@ namespace DateSwipe.Server.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegister request)
+        public async Task<ActionResult<ServiceResponse<string>>> Register(UserRegister request)
         {
             var response = await _authService.Register(new User
             {
@@ -39,7 +39,10 @@ namespace DateSwipe.Server.Controllers
             }
             else
             {
-                return Ok(response);
+                var token = await _authService.Login(request.Email, request.Password);
+
+                return token;
+                
             }
         }
 

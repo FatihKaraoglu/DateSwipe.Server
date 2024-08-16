@@ -28,7 +28,7 @@ namespace DateSwipe.Shared
         [Required, StringLength(50)]
         public string City { get; set; } = string.Empty;
 
-        [Required, StringLength(5)]
+        [Required, StringLength(50)]
         public string Address { get; set; } = string.Empty;
     }
 }

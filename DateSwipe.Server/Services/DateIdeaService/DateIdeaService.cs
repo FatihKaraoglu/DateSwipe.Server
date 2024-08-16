@@ -55,8 +55,12 @@ namespace DateSwipe.Server.Services.DateIdeaService
                 var random = new Random();
                 sortedDateIdeas = sortedDateIdeas.OrderBy(di => random.Next()).ToList();
 
+                // Limit amount 
+                var limitedDateIdeas = sortedDateIdeas.Take(25).ToList();
+
+
                 // Convert to DTOs
-                var dateIdeaDtos = sortedDateIdeas.Select(di => new DateIdeaDTO
+                var dateIdeaDtos = limitedDateIdeas.Select(di => new DateIdeaDTO
                 {
                     Id = di.Id,
                     Title = di.Title,
